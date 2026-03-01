@@ -22,7 +22,7 @@ static func get_target(attacker: Node, enemies: Array) -> Node:
 			best_dist = attacker.global_position.distance_to(enemy.global_position)
 			continue
 
-		var dist := attacker.global_position.distance_to(enemy.global_position)
+		var dist: float = (attacker.global_position as Vector2).distance_to(enemy.global_position)
 		if dist < best_dist:
 			best_dist = dist
 			best = enemy
@@ -34,7 +34,7 @@ static func get_target(attacker: Node, enemies: Array) -> Node:
 static func is_in_range(attacker: Node, target: Node, atk_range: int, hex_size: float) -> bool:
 	if not is_instance_valid(target):
 		return false
-	var dist := attacker.global_position.distance_to(target.global_position)
+	var dist: float = (attacker.global_position as Vector2).distance_to(target.global_position)
 	return dist <= float(atk_range) * hex_size + 4.0  # +4 pixel tolerance
 
 ## Returns the pixel position one step toward `target` from `from_pos`.

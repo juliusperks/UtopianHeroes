@@ -67,7 +67,13 @@ func _on_show(udata: UnitData, inst: Dictionary) -> void:
 	if udata.ability_id != "":
 		var val_idx := clampi(star - 1, 0, udata.ability_values.size() - 1)
 		var val_str := str(udata.ability_values[val_idx]) if not udata.ability_values.is_empty() else ""
-		_ability_label.text = "✦ %s: %s" % [udata.ability_name, udata.ability_description.replace("[%s]" % "/".join(udata.ability_values.map(str)), val_str)]
+		var ability_values_as_text := PackedStringArray()
+		for value in udata.ability_values:
+			ability_values_as_text.append(str(value))
+		_ability_label.text = "✦ %s: %s" % [
+			udata.ability_name,
+			udata.ability_description.replace("[%s]" % "/".join(ability_values_as_text), val_str)
+		]
 	else:
 		_ability_label.text = ""
 

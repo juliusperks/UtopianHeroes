@@ -85,6 +85,8 @@ func init_game(ai_count: int = 7) -> void:
 		ps.player_id = i
 		ps.is_ai     = (i != local_player_id)
 		ps.gold      = DataLoader.economy.get("starting_gold", 3)
+		ps.level     = int(DataLoader.economy.get("starting_level", 1))
+		ps.xp        = int(DataLoader.economy.get("starting_xp", 0))
 		ps.hp        = DataLoader.economy.get("starting_hp", 100)
 		players.append(ps)
 	_init_pool()
@@ -152,11 +154,11 @@ func try_merge_units(player_id: int, unit_id: String) -> bool:
 	var one_stars: Array = []
 	for inst in ps.bench:
 		if inst.get("unit_id") == unit_id and inst.get("star", 1) == 1:
-			one_stars.append({"source": "bench", "inst": inst})
+			one_stars.append({"source_type": "bench", "source": -1, "inst": inst})
 	for coord in ps.board:
 		var inst: Dictionary = ps.board[coord]
 		if inst.get("unit_id") == unit_id and inst.get("star", 1) == 1:
-			one_stars.append({"source": coord, "inst": inst})
+			one_stars.append({"source_type": "board", "source": coord, "inst": inst})
 
 	if one_stars.size() < 3:
 		return false
@@ -167,7 +169,7 @@ func try_merge_units(player_id: int, unit_id: String) -> bool:
 	for entry in one_stars:
 		if removed >= 3:
 			break
-		if entry["source"] == "bench":
+		if entry["source_type"] == "bench":
 			ps.bench.erase(entry["inst"])
 		else:
 			if first_board_coord == null:

@@ -35,8 +35,11 @@ func _build_scene() -> void:
 	world.position = Vector2(640, 360)  # center of 1280x720
 	add_child(world)
 
-	# Board
+	# Board — offset to center the 7×4 grid on screen (world origin is at 640, 360)
+	# Board bounding box: x≈0..481, y≈0..224; bench adds y up to ~376
+	# This places board top-left at screen (400, 80), bench bottom at ~(400, 456)
 	_board = BoardScene.instantiate()
+	_board.position = Vector2(-240.0, -280.0)
 	world.add_child(_board)
 
 	# Battle arena (overlaid, visible only during combat)
@@ -59,11 +62,12 @@ func _build_scene() -> void:
 	popup_layer.add_child(_unit_info_popup)
 
 	# Shop panel — bottom of screen
+	# ShopSlot min size is 110×150; 5 slots + padding ≈ 590×218px total panel size.
+	# Placed at absolute y=495 so it fits within the 720px viewport (ends ~y=713).
 	var shop_layer := CanvasLayer.new()
 	add_child(shop_layer)
 	_shop_panel = ShopPanelScene.instantiate()
-	_shop_panel.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	_shop_panel.position = Vector2(0, 620)
+	_shop_panel.position = Vector2(0, 495)
 	shop_layer.add_child(_shop_panel)
 
 	# Synergy panel — left side
@@ -84,7 +88,6 @@ func _build_scene() -> void:
 	SignalBus.game_over.connect(_on_game_over)
 
 func _start_game() -> void:
-	AIDirector.setup_ai_players()
 	RoundManager.start_game()
 
 func _on_phase_changed(phase: int) -> void:

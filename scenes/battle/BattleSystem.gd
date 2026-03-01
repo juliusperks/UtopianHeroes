@@ -1,6 +1,7 @@
 ## BattleSystem — orchestrates auto-combat on the BattleArena.
 ## Runs a tick-based simulation (TICK_RATE seconds per tick).
 ## Attached as a child of BattleArena.
+class_name BattleSystem
 extends Node
 
 signal battle_complete(winner_team: int, surviving_unit_count: int)

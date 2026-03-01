@@ -61,7 +61,7 @@ func _spawn_unit(inst: Dictionary, team: int, coord: Vector2i, mirror: bool) -> 
 
 	# Position: player board on bottom, enemy on top (mirrored Y)
 	var pixel_pos := _board_coord_to_world(coord, mirror)
-	unit_node.global_position = pixel_pos
+	unit_node.position = pixel_pos
 	add_child(unit_node)
 
 	# Apply synergy bonuses to combat stats

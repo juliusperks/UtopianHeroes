@@ -1,0 +1,5 @@
+res://scenes/units/Unit.gd
+res://autoloads/RoundManager.gd
+res://autoloads/ShopManager.gd
+res://autoloads/GameState.gd
+res://scenes/battle/BattleArena.gd

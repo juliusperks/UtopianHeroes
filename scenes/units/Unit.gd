@@ -3,8 +3,11 @@
 extends Area2D
 
 signal died(unit_node: Node)
+signal clicked(unit_node: Node)
 
 const HEX_SIZE := 64.0   # used for range calculations
+const _GenericMagicScript = preload("res://scenes/units/abilities/generic_magic.gd")
+const _UnitIconScript     = preload("res://scenes/units/UnitIcon.gd")
 
 # ── Identity ──────────────────────────────────────────────────────────────────
 var unit_id: String = ""
@@ -45,19 +48,29 @@ var _rage_stacks: int = 0
 
 # Visual nodes (created in _ready)
 var _sprite: Sprite2D
+var _icon: Node2D         # procedural hex portrait; hidden once a real sprite loads
 var _hp_bar: ProgressBar
 var _mana_bar: ProgressBar
 var _name_label: Label
+var _subtitle_label: Label
 var _star_label: Label
+var _visuals_built: bool = false
 
 # Ability
 var _ability: UnitAbility = null
 
 func _ready() -> void:
-	_build_visuals()
+	_ensure_visuals()
 	_status_effects = StatusEffectManager.new()
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
+	input_event.connect(_on_input_event)
+
+func _ensure_visuals() -> void:
+	if _visuals_built:
+		return
+	_build_visuals()
+	_visuals_built = true
 
 func _build_visuals() -> void:
 	var collision := CollisionShape2D.new()
@@ -69,6 +82,11 @@ func _build_visuals() -> void:
 	_sprite = Sprite2D.new()
 	_sprite.scale = Vector2(0.4, 0.4)
 	add_child(_sprite)
+
+	# Procedural hex portrait — visible by default, hidden once a real sprite loads
+	_icon = _UnitIconScript.new()
+	_icon.scale = Vector2(1.25, 1.25)
+	add_child(_icon)
 
 	# HP bar
 	_hp_bar = ProgressBar.new()
@@ -93,12 +111,27 @@ func _build_visuals() -> void:
 	# Name label
 	_name_label = Label.new()
 	_name_label.text = ""
-	_name_label.add_theme_font_size_override("font_size", 10)
-	_name_label.position = Vector2(-28.0, 30.0)
-	_name_label.size = Vector2(56.0, 16.0)
+	_name_label.add_theme_font_size_override("font_size", 11)
+	_name_label.add_theme_constant_override("outline_size", 2)
+	_name_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.95))
+	_name_label.position = Vector2(-46.0, 28.0)
+	_name_label.size = Vector2(92.0, 16.0)
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_name_label.visible = false
+	_name_label.visible = true
+	_name_label.clip_text = true
 	add_child(_name_label)
+
+	_subtitle_label = Label.new()
+	_subtitle_label.text = ""
+	_subtitle_label.add_theme_font_size_override("font_size", 9)
+	_subtitle_label.add_theme_constant_override("outline_size", 1)
+	_subtitle_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.95))
+	_subtitle_label.position = Vector2(-46.0, 40.0)
+	_subtitle_label.size = Vector2(92.0, 14.0)
+	_subtitle_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_subtitle_label.modulate = Color(0.9, 0.95, 1.0, 0.9)
+	_subtitle_label.clip_text = true
+	add_child(_subtitle_label)
 
 	# Star label
 	_star_label = Label.new()
@@ -111,6 +144,7 @@ func _build_visuals() -> void:
 # ── Initialization ────────────────────────────────────────────────────────────
 
 func init_from_data(inst_data: Dictionary) -> void:
+	_ensure_visuals()
 	instance_data = inst_data
 	instance_id   = inst_data.get("instance_id", "")
 	unit_id       = inst_data.get("unit_id", "")
@@ -121,12 +155,16 @@ func init_from_data(inst_data: Dictionary) -> void:
 		push_error("[Unit] Unknown unit_id: %s" % unit_id)
 		return
 
-	_name_label.text = unit_data.display_name
+	_name_label.text = _short_name(unit_data.display_name)
+	_subtitle_label.text = "%s / %s" % [unit_data.origin.capitalize(), unit_data.unit_class.capitalize()]
 	_star_label.text = _star_text(star)
 
-	# Try to load sprite
+	# Draw the procedural portrait now that we know origin + class
+	_icon.setup(unit_data.origin, unit_data.unit_class)
+	# Replace icon with a real sprite if one exists
 	if ResourceLoader.exists(unit_data.sprite_path):
 		_sprite.texture = load(unit_data.sprite_path)
+		_icon.visible = false
 
 	# Set ability
 	_ability = _create_ability()
@@ -300,13 +338,25 @@ func _star_text(s: int) -> String:
 		_: return "★"
 
 func _on_mouse_entered() -> void:
-	_name_label.visible = true
+	_name_label.modulate = Color.WHITE
+	_subtitle_label.modulate = Color.WHITE
 	if unit_data != null:
 		SignalBus.show_unit_tooltip.emit(unit_data, instance_data)
 
 func _on_mouse_exited() -> void:
-	_name_label.visible = false
+	_name_label.modulate = Color(1, 1, 1, 0.9)
+	_subtitle_label.modulate = Color(0.9, 0.95, 1.0, 0.9)
 	SignalBus.hide_unit_tooltip.emit()
+
+func _short_name(full_name: String) -> String:
+	var parts := full_name.split(" ", false)
+	if parts.size() >= 2:
+		return "%s %s." % [parts[0], parts[1].left(1)]
+	return full_name
+
+func _on_input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		clicked.emit(self)
 
 # ── Ability factory ───────────────────────────────────────────────────────────
 
@@ -319,11 +369,4 @@ func _create_ability() -> UnitAbility:
 		var script: GDScript = load(script_path)
 		return script.new(unit_data, self, star)
 	# Fallback: generic ability that just deals magic damage to nearest enemy
-	return _GenericMagicAbility.new(unit_data, self, star)
-
-# ── Generic fallback ability ──────────────────────────────────────────────────
-class _GenericMagicAbility extends UnitAbility:
-	func execute(allies: Array, enemies: Array) -> void:
-		var target := TargetSelector.get_target(caster, enemies)
-		if target != null:
-			deal_magic_damage(target, get_value())
+	return _GenericMagicScript.new(unit_data, self, star)

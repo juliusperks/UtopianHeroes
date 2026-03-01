@@ -24,6 +24,12 @@ var bench_units: Array = []      # Array[Unit or null], length = max_bench
 var _dragged_unit: Node = null        # Unit node being dragged
 var _drag_source_board: Variant = null  # Vector2i if from board, null if from bench
 var _drag_source_bench: int = -1       # bench index if from bench, -1 if from board
+var _pending_source_board: Variant = null
+var _pending_source_bench: int = -1
+var _press_local_mouse: Vector2 = Vector2.ZERO
+
+const PICK_RADIUS := 38.0
+const DRAG_START_DISTANCE := 8.0
 
 func _ready() -> void:
 	_build_grid()
@@ -37,8 +43,6 @@ func _build_grid() -> void:
 			var cell: Node = HexCellScene.instantiate()
 			cell.coord = coord
 			cell.position = _hex_to_pixel(coord)
-			cell.clicked.connect(_on_cell_clicked.bind(coord))
-			cell.hovered.connect(_on_cell_hovered.bind(coord))
 			add_child(cell)
 			hex_cells[coord] = cell
 
@@ -52,7 +56,6 @@ func _build_bench() -> void:
 		var slot: Node = BenchSlotScene.instantiate()
 		slot.slot_index = i
 		slot.position = Vector2(start_x + i * 68.0, bench_y)
-		slot.clicked.connect(_on_bench_slot_clicked.bind(i))
 		add_child(slot)
 		bench_slots.append(slot)
 		bench_units.append(null)
@@ -74,22 +77,106 @@ func _hex_to_pixel(coord: Vector2i) -> Vector2:
 	return Vector2(x, y)
 
 # ── Input / Drag & Drop ───────────────────────────────────────────────────────
+## True press-hold-release drag: mousedown picks up the nearest unit,
+## mouseup drops it on the nearest hex cell or bench slot.
 
-func _on_cell_clicked(coord: Vector2i) -> void:
+func _input(event: InputEvent) -> void:
+	var local_mouse := to_local(get_global_mouse_position())
+	if event is InputEventMouseMotion:
+		_try_start_drag(local_mouse)
+		return
+	if not (event is InputEventMouseButton):
+		return
+	if event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			_on_left_pressed(local_mouse)
+		else:
+			_on_left_released(local_mouse)
+	elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		_try_sell(local_mouse)
+
+func _on_left_pressed(local_mouse: Vector2) -> void:
+	_press_local_mouse = local_mouse
+	_pending_source_board = null
+	_pending_source_bench = -1
+	for coord in board_units.keys():
+		if _hex_to_pixel(coord).distance_to(local_mouse) < PICK_RADIUS:
+			_pending_source_board = coord
+			get_viewport().set_input_as_handled()
+			return
+	for i in bench_units.size():
+		if bench_units[i] != null and bench_slots[i].position.distance_to(local_mouse) < PICK_RADIUS:
+			_pending_source_bench = i
+			get_viewport().set_input_as_handled()
+			return
+
+func _on_left_released(local_mouse: Vector2) -> void:
 	if _dragged_unit != null:
-		_finish_drop(coord)
+		_try_drop(local_mouse)
 		return
 
-	# If a unit is on this cell, start dragging it
-	if board_units.has(coord):
-		_start_drag_from_board(coord)
+	# Quick click: show unit info instead of forcing drag.
+	if _pending_source_board != null and board_units.has(_pending_source_board):
+		var board_unit: Node = board_units[_pending_source_board]
+		SignalBus.show_unit_tooltip.emit(board_unit.unit_data, board_unit.instance_data)
+		get_viewport().set_input_as_handled()
+	elif _pending_source_bench >= 0 and _pending_source_bench < bench_units.size() and bench_units[_pending_source_bench] != null:
+		var bench_unit: Node = bench_units[_pending_source_bench]
+		SignalBus.show_unit_tooltip.emit(bench_unit.unit_data, bench_unit.instance_data)
+		get_viewport().set_input_as_handled()
+	else:
+		SignalBus.hide_unit_tooltip.emit()
 
-func _on_bench_slot_clicked(slot_idx: int) -> void:
+	_pending_source_board = null
+	_pending_source_bench = -1
+
+func _try_start_drag(local_mouse: Vector2) -> void:
 	if _dragged_unit != null:
-		_finish_drop_to_bench(slot_idx)
 		return
-	if bench_units[slot_idx] != null:
-		_start_drag_from_bench(slot_idx)
+	if not RoundManager.is_prep():
+		return
+	if _pending_source_board == null and _pending_source_bench < 0:
+		return
+	if _press_local_mouse.distance_to(local_mouse) < DRAG_START_DISTANCE:
+		return
+	if _pending_source_board != null:
+		if board_units.has(_pending_source_board):
+			_start_drag_from_board(_pending_source_board)
+			get_viewport().set_input_as_handled()
+	elif _pending_source_bench >= 0:
+		if _pending_source_bench < bench_units.size() and bench_units[_pending_source_bench] != null:
+			_start_drag_from_bench(_pending_source_bench)
+			get_viewport().set_input_as_handled()
+	_pending_source_board = null
+	_pending_source_bench = -1
+
+func _try_drop(local_mouse: Vector2) -> void:
+	if _dragged_unit == null:
+		return
+	get_viewport().set_input_as_handled()
+	# Nearest hex cell within snap radius
+	var best_coord := Vector2i(-1, -1)
+	var best_dist := 42.0
+	for coord in hex_cells.keys():
+		var d: float = _hex_to_pixel(coord).distance_to(local_mouse)
+		if d < best_dist:
+			best_dist = d
+			best_coord = coord
+	if best_coord != Vector2i(-1, -1):
+		_finish_drop(best_coord)
+		return
+	# Nearest bench slot
+	var best_bench := -1
+	var best_bench_dist := 42.0
+	for i in bench_slots.size():
+		var d: float = bench_slots[i].position.distance_to(local_mouse)
+		if d < best_bench_dist:
+			best_bench_dist = d
+			best_bench = i
+	if best_bench >= 0:
+		_finish_drop_to_bench(best_bench)
+		return
+	_cancel_drag()
 
 func _start_drag_from_board(coord: Vector2i) -> void:
 	if not RoundManager.is_prep():
@@ -112,10 +199,7 @@ func _start_drag_from_bench(slot_idx: int) -> void:
 	_dragged_unit.z_index = 10
 	bench_units[slot_idx] = null
 	bench_slots[slot_idx].mark_occupied(false)
-	# Remove from GameState bench
-	var ps := GameState.local_player()
-	if slot_idx < ps.bench.size():
-		ps.bench.remove_at(slot_idx)
+	_sync_bench_state_from_visual()
 
 func _finish_drop(target_coord: Vector2i) -> void:
 	if not hex_cells.has(target_coord):
@@ -131,7 +215,7 @@ func _finish_drop(target_coord: Vector2i) -> void:
 
 	# Swap if target is occupied
 	if board_units.has(target_coord):
-		var displaced := board_units[target_coord]
+		var displaced: Node = board_units[target_coord]
 		_place_unit_on_board(_dragged_unit, target_coord)
 		# Move displaced unit back to source
 		if _drag_source_board != null:
@@ -147,7 +231,7 @@ func _finish_drop(target_coord: Vector2i) -> void:
 
 func _finish_drop_to_bench(slot_idx: int) -> void:
 	if bench_units[slot_idx] != null:
-		var displaced := bench_units[slot_idx]
+		var displaced: Node = bench_units[slot_idx]
 		_place_unit_on_bench(_dragged_unit, slot_idx)
 		if _drag_source_board != null:
 			_place_unit_on_board(displaced, _drag_source_board)
@@ -156,6 +240,8 @@ func _finish_drop_to_bench(slot_idx: int) -> void:
 	else:
 		_place_unit_on_bench(_dragged_unit, slot_idx)
 	_dragged_unit = null
+	_drag_source_board = null
+	_drag_source_bench = -1
 
 func _cancel_drag() -> void:
 	if _dragged_unit == null:
@@ -165,6 +251,8 @@ func _cancel_drag() -> void:
 	elif _drag_source_bench >= 0:
 		_place_unit_on_bench(_dragged_unit, _drag_source_bench)
 	_dragged_unit = null
+	_drag_source_board = null
+	_drag_source_bench = -1
 
 func _process(_delta: float) -> void:
 	if _dragged_unit != null:
@@ -189,10 +277,36 @@ func _place_unit_on_bench(unit_node: Node, slot_idx: int) -> void:
 	unit_node.position = bench_slots[slot_idx].position
 	bench_units[slot_idx] = unit_node
 	bench_slots[slot_idx].mark_occupied(true)
+	_sync_bench_state_from_visual()
 
-	# Sync to GameState
+func _sync_bench_state_from_visual() -> void:
 	var ps := GameState.local_player()
-	ps.bench.append(unit_node.instance_data.duplicate())
+	ps.bench.clear()
+	for unit_node in bench_units:
+		if unit_node != null:
+			ps.bench.append(unit_node.instance_data.duplicate())
+
+func _try_sell(local_mouse: Vector2) -> void:
+	if not RoundManager.is_prep():
+		return
+	# Sell from board
+	for coord in board_units.keys():
+		if _hex_to_pixel(coord).distance_to(local_mouse) < 38.0:
+			var sold := ShopManager.sell_unit(GameState.local_player_id, board_units[coord].instance_id)
+			if sold:
+				SignalBus.show_message.emit("Unit sold.", 1.0)
+				populate_from_state()
+				get_viewport().set_input_as_handled()
+			return
+	# Sell from bench
+	for i in bench_units.size():
+		if bench_units[i] != null and bench_slots[i].position.distance_to(local_mouse) < 38.0:
+			var sold := ShopManager.sell_unit(GameState.local_player_id, bench_units[i].instance_id)
+			if sold:
+				SignalBus.show_message.emit("Unit sold.", 1.0)
+				populate_from_state()
+				get_viewport().set_input_as_handled()
+			return
 
 # ── Spawn unit nodes from GameState ──────────────────────────────────────────
 
@@ -264,9 +378,6 @@ func _on_unit_upgraded(player_id: int, _unit_id: String, _new_star: int) -> void
 
 func _on_synergies_updated(player_id: int, _bonuses: Dictionary) -> void:
 	pass  # SynergyPanel handles this
-
-func _on_cell_hovered(_coord: Vector2i) -> void:
-	pass
 
 func _on_phase_changed(phase: int) -> void:
 	# During combat, disable board interaction

@@ -60,11 +60,17 @@ func buy_unit(player_id: int, slot_index: int) -> bool:
 	SignalBus.unit_placed_on_bench.emit(player_id, inst["instance_id"])
 
 	# Check for 3-copy merge (1-star → 2-star)
-	GameState.try_merge_units(player_id, unit_id)
+	var merged_to_two_star := GameState.try_merge_units(player_id, unit_id)
 	# Check for 3x 2-star → 3-star
 	# (try_merge checks 1-stars; after the above we might have 3x 2-stars)
 	# We'd need another pass for 2→3, handled in the extended merge path:
-	_try_merge_two_stars(player_id, unit_id)
+	var merged_to_three_star := _try_merge_two_stars(player_id, unit_id)
+
+	if player_id == GameState.local_player_id:
+		if merged_to_three_star:
+			SignalBus.show_message.emit("Upgraded to 3-star!", 1.8)
+		elif merged_to_two_star:
+			SignalBus.show_message.emit("Upgraded to 2-star!", 1.5)
 
 	SynergyManager.recalculate(player_id)
 	return true
@@ -159,18 +165,47 @@ func _draw_unit(odds: Array) -> String:
 			chosen_cost = cost
 			break
 
-	# Gather available units of that cost tier
-	var available: Array = []
-	for uid in DataLoader.units:
-		if DataLoader.units[uid].cost == chosen_cost and GameState.unit_pool.get(uid, 0) > 0:
-			available.append(uid)
+	# Gather available units of that cost tier first.
+	var available := _available_units_for_cost(chosen_cost)
 
+	# If the rolled tier is exhausted, fallback to another tier with available units.
+	# This avoids random empty shop slots while the global pool still has units.
 	if available.is_empty():
-		return ""   # Pool exhausted for this tier
+		var costs_with_units: Array[int] = []
+		var weight_sum := 0.0
+		for cost in range(1, 6):
+			if not _available_units_for_cost(cost).is_empty():
+				costs_with_units.append(cost)
+				weight_sum += float(odds[cost - 1])
+		if costs_with_units.is_empty():
+			return ""  # Entire pool is exhausted.
+		if weight_sum <= 0.0001:
+			chosen_cost = costs_with_units[randi() % costs_with_units.size()]
+		else:
+			var fallback_roll := randf() * weight_sum
+			var fallback_cum := 0.0
+			for cost in costs_with_units:
+				fallback_cum += float(odds[cost - 1])
+				if fallback_roll <= fallback_cum:
+					chosen_cost = cost
+					break
+		available = _available_units_for_cost(chosen_cost)
+		if available.is_empty():
+			chosen_cost = costs_with_units[randi() % costs_with_units.size()]
+			available = _available_units_for_cost(chosen_cost)
+			if available.is_empty():
+				return ""
 
 	var chosen: String = available[randi() % available.size()]
 	GameState.unit_pool[chosen] -= 1
 	return chosen
+
+func _available_units_for_cost(cost: int) -> Array:
+	var available: Array = []
+	for uid in DataLoader.units:
+		if DataLoader.units[uid].cost == cost and GameState.unit_pool.get(uid, 0) > 0:
+			available.append(uid)
+	return available
 
 func _return_to_pool(unit_id: String) -> void:
 	if GameState.unit_pool.has(unit_id):
@@ -187,29 +222,29 @@ func _remove_unit_instance(ps: GameState.PlayerState, instance_id: String) -> vo
 			SignalBus.unit_removed_from_board.emit(ps.player_id, instance_id)
 			return
 
-func _try_merge_two_stars(player_id: int, unit_id: String) -> void:
+func _try_merge_two_stars(player_id: int, unit_id: String) -> bool:
 	var ps := GameState.get_player(player_id)
 	if ps == null:
-		return
+		return false
 
 	var two_stars: Array = []
 	for inst in ps.bench:
 		if inst.get("unit_id") == unit_id and inst.get("star", 1) == 2:
-			two_stars.append({"source": "bench", "inst": inst})
+			two_stars.append({"source_type": "bench", "source": -1, "inst": inst})
 	for coord in ps.board:
 		var inst: Dictionary = ps.board[coord]
 		if inst.get("unit_id") == unit_id and inst.get("star", 1) == 2:
-			two_stars.append({"source": coord, "inst": inst})
+			two_stars.append({"source_type": "board", "source": coord, "inst": inst})
 
 	if two_stars.size() < 3:
-		return
+		return false
 
 	var removed := 0
 	var first_board_coord: Variant = null
 	for entry in two_stars:
 		if removed >= 3:
 			break
-		if entry["source"] == "bench":
+		if entry["source_type"] == "bench":
 			ps.bench.erase(entry["inst"])
 		else:
 			if first_board_coord == null:
@@ -227,3 +262,4 @@ func _try_merge_two_stars(player_id: int, unit_id: String) -> void:
 		ps.bench.append(new_inst)
 
 	SignalBus.unit_upgraded.emit(player_id, unit_id, 3)
+	return true

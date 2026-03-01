@@ -25,14 +25,14 @@ func get_value() -> float:
 	var idx := clampi(star - 1, 0, values.size() - 1)
 	var base := float(values[idx])
 	# Apply ability damage % bonus from traits and items
-	var ability_dmg_pct := caster.get_ability_dmg_bonus()
+	var ability_dmg_pct: float = caster.get_ability_dmg_bonus()
 	return base * (1.0 + ability_dmg_pct / 100.0)
 
 ## Utility: deal magic damage from caster to target
 func deal_magic_damage(target: Node, amount: float) -> void:
 	if not is_instance_valid(target) or not target.is_alive:
 		return
-	var mr := target.current_mr
+	var mr: float = target.current_mr
 	# Heretic MR shred
 	var shred: float = caster.get("mr_shred_flat") if caster.get("mr_shred_flat") else 0.0
 	if shred > 0.0:
@@ -68,7 +68,7 @@ func get_units_in_range(origin_unit: Node, all_units: Array, hex_range: int, hex
 	for u in all_units:
 		if not is_instance_valid(u) or not u.is_alive:
 			continue
-		var dist := origin_unit.global_position.distance_to(u.global_position)
+		var dist: float = (origin_unit.global_position as Vector2).distance_to(u.global_position)
 		if dist <= float(hex_range) * hex_size + 4.0:
 			result.append(u)
 	return result

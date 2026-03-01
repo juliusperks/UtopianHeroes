@@ -19,7 +19,7 @@ func _build_ui() -> void:
 	var top_bar := HBoxContainer.new()
 	top_bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	top_bar.position = Vector2(0, 4)
-	top_bar.size = Vector2(1280, 40)
+	top_bar.custom_minimum_size = Vector2(0, 40)
 	add_child(top_bar)
 
 	_gold_label = _make_label("0g", 16, Color.GOLD)
