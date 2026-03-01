@@ -1,0 +1,158 @@
+{
+  "components": [
+    {
+      "id": "longsword",
+      "name": "Longsword",
+      "description": "+15 Attack Damage",
+      "is_component": true,
+      "stats": { "atk_bonus": 15 },
+      "sprite": "res://assets/art/items/longsword.png"
+    },
+    {
+      "id": "chain_vest",
+      "name": "Chain Vest",
+      "description": "+20 Armor",
+      "is_component": true,
+      "stats": { "armor_bonus": 20 },
+      "sprite": "res://assets/art/items/chain_vest.png"
+    },
+    {
+      "id": "negatron_cloak",
+      "name": "Negatron Cloak",
+      "description": "+20 Magic Resistance",
+      "is_component": true,
+      "stats": { "mr_bonus": 20 },
+      "sprite": "res://assets/art/items/negatron_cloak.png"
+    },
+    {
+      "id": "giants_belt",
+      "name": "Giant's Belt",
+      "description": "+200 HP",
+      "is_component": true,
+      "stats": { "hp_bonus": 200 },
+      "sprite": "res://assets/art/items/giants_belt.png"
+    },
+    {
+      "id": "needlessly_large_rod",
+      "name": "Needlessly Large Rod",
+      "description": "+20% Ability Damage",
+      "is_component": true,
+      "stats": { "ability_dmg_pct_bonus": 20 },
+      "sprite": "res://assets/art/items/nlr.png"
+    },
+    {
+      "id": "recurve_bow",
+      "name": "Recurve Bow",
+      "description": "+15% Attack Speed",
+      "is_component": true,
+      "stats": { "atk_speed_pct_bonus": 15 },
+      "sprite": "res://assets/art/items/recurve_bow.png"
+    },
+    {
+      "id": "tear_of_goddess",
+      "name": "Tear of the Goddess",
+      "description": "+20 Starting Mana",
+      "is_component": true,
+      "stats": { "mana_bonus": 20 },
+      "sprite": "res://assets/art/items/tear.png"
+    },
+    {
+      "id": "spatula",
+      "name": "Spatula",
+      "description": "Grants a bonus trait when combined.",
+      "is_component": true,
+      "stats": {},
+      "sprite": "res://assets/art/items/spatula.png"
+    }
+  ],
+  "combined": [
+    {
+      "id": "bloodthirster",
+      "name": "Bloodthirster",
+      "description": "+40 Attack Damage. Heals for 25% of physical damage dealt.",
+      "is_component": false,
+      "components": ["longsword", "giants_belt"],
+      "stats": { "atk_bonus": 40, "hp_bonus": 100 },
+      "effect_id": "lifesteal",
+      "effect_value": 0.25,
+      "sprite": "res://assets/art/items/bloodthirster.png"
+    },
+    {
+      "id": "rageblade",
+      "name": "Rageblade",
+      "description": "+15 Attack Damage, +15% Attack Speed. Each attack grants +5% attack speed (stacks 8 times).",
+      "is_component": false,
+      "components": ["longsword", "recurve_bow"],
+      "stats": { "atk_bonus": 15, "atk_speed_pct_bonus": 15 },
+      "effect_id": "rage_stack",
+      "effect_value": 5.0,
+      "sprite": "res://assets/art/items/rageblade.png"
+    },
+    {
+      "id": "guardian_angel",
+      "name": "Guardian Angel",
+      "description": "+20 Armor, +20 MR. On death, revive at 500 HP (once per combat).",
+      "is_component": false,
+      "components": ["chain_vest", "negatron_cloak"],
+      "stats": { "armor_bonus": 20, "mr_bonus": 20 },
+      "effect_id": "revive",
+      "effect_value": 500.0,
+      "sprite": "res://assets/art/items/guardian_angel.png"
+    },
+    {
+      "id": "warmogs_armor",
+      "name": "Warmog's Armor",
+      "description": "+600 HP. Regenerates 5% max HP per second in combat.",
+      "is_component": false,
+      "components": ["giants_belt", "giants_belt"],
+      "stats": { "hp_bonus": 600 },
+      "effect_id": "hp_regen_pct",
+      "effect_value": 5.0,
+      "sprite": "res://assets/art/items/warmogs.png"
+    },
+    {
+      "id": "rabadons_deathcap",
+      "name": "Rabadon's Deathcap",
+      "description": "+40% Ability Damage.",
+      "is_component": false,
+      "components": ["needlessly_large_rod", "needlessly_large_rod"],
+      "stats": { "ability_dmg_pct_bonus": 40 },
+      "effect_id": "",
+      "effect_value": 0.0,
+      "sprite": "res://assets/art/items/deathcap.png"
+    },
+    {
+      "id": "shojin_spear",
+      "name": "Spear of Shojin",
+      "description": "+15 Attack Damage, +30 Starting Mana. After casting, restores 5 mana per attack.",
+      "is_component": false,
+      "components": ["longsword", "tear_of_goddess"],
+      "stats": { "atk_bonus": 15, "mana_bonus": 30 },
+      "effect_id": "mana_on_attack",
+      "effect_value": 5.0,
+      "sprite": "res://assets/art/items/shojin.png"
+    },
+    {
+      "id": "ionic_spark",
+      "name": "Ionic Spark",
+      "description": "+30 MR. Enemies within 2 hexes have MR reduced by 50% and take 80 magic damage when they cast.",
+      "is_component": false,
+      "components": ["negatron_cloak", "tear_of_goddess"],
+      "stats": { "mr_bonus": 30 },
+      "effect_id": "ionic_aura",
+      "effect_value": 80.0,
+      "sprite": "res://assets/art/items/ionic_spark.png"
+    },
+    {
+      "id": "thornmail",
+      "name": "Thornmail",
+      "description": "+30 Armor. Reflects 30% of physical damage taken back to the attacker.",
+      "is_component": false,
+      "components": ["chain_vest", "giants_belt"],
+      "stats": { "armor_bonus": 30, "hp_bonus": 150 },
+      "effect_id": "thorns",
+      "effect_value": 30.0,
+      "sprite": "res://assets/art/items/thornmail.png"
+    }
+  ]
+}

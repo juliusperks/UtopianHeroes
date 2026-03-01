@@ -1,0 +1,470 @@
+[
+  {
+    "id": "avian_paladin",
+    "name": "Skyguard",
+    "origin": "avian",
+    "class": "paladin",
+    "cost": 1,
+    "stats": { "hp": 500, "atk": 50, "armor": 20, "mr": 20, "atk_speed": 0.7, "atk_range": 1 },
+    "ability": {
+      "id": "divine_shield",
+      "name": "Divine Shield",
+      "description": "Shields self for [200/350/600] damage for 3 seconds.",
+      "mana_cost": 60,
+      "values": [200, 350, 600]
+    },
+    "sprite": "res://assets/art/units/avian_paladin.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "avian_rogue",
+    "name": "Talon Shade",
+    "origin": "avian",
+    "class": "rogue",
+    "cost": 2,
+    "stats": { "hp": 450, "atk": 75, "armor": 15, "mr": 15, "atk_speed": 1.1, "atk_range": 1 },
+    "ability": {
+      "id": "shadow_dive",
+      "name": "Shadow Dive",
+      "description": "Leaps to the nearest enemy, dealing [150/280/500] magic damage.",
+      "mana_cost": 50,
+      "values": [150, 280, 500]
+    },
+    "sprite": "res://assets/art/units/avian_rogue.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "dwarf_general",
+    "name": "Ironclad Marshal",
+    "origin": "dwarf",
+    "class": "general",
+    "cost": 2,
+    "stats": { "hp": 800, "atk": 70, "armor": 50, "mr": 30, "atk_speed": 0.6, "atk_range": 1 },
+    "ability": {
+      "id": "war_banner",
+      "name": "War Banner",
+      "description": "Rallies nearby allies, granting [15/25/40]% attack speed for 4 seconds.",
+      "mana_cost": 80,
+      "values": [15, 25, 40]
+    },
+    "sprite": "res://assets/art/units/dwarf_general.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "dwarf_sage",
+    "name": "Runesmith",
+    "origin": "dwarf",
+    "class": "sage",
+    "cost": 3,
+    "stats": { "hp": 650, "atk": 60, "armor": 40, "mr": 40, "atk_speed": 0.65, "atk_range": 2 },
+    "ability": {
+      "id": "rune_burst",
+      "name": "Rune Burst",
+      "description": "Detonates runes on the target, dealing [180/320/580] magic damage to it and adjacent enemies.",
+      "mana_cost": 70,
+      "values": [180, 320, 580]
+    },
+    "sprite": "res://assets/art/units/dwarf_sage.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "elf_mystic",
+    "name": "Arcane Warden",
+    "origin": "elf",
+    "class": "mystic",
+    "cost": 2,
+    "stats": { "hp": 550, "atk": 65, "armor": 20, "mr": 50, "atk_speed": 0.75, "atk_range": 3 },
+    "ability": {
+      "id": "arcane_blast",
+      "name": "Arcane Blast",
+      "description": "Fires a bolt that deals [200/360/650] magic damage to the target and bounces to 2 nearby enemies for 50% damage.",
+      "mana_cost": 75,
+      "values": [200, 360, 650]
+    },
+    "sprite": "res://assets/art/units/elf_mystic.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "elf_paladin",
+    "name": "Starlight Knight",
+    "origin": "elf",
+    "class": "paladin",
+    "cost": 3,
+    "stats": { "hp": 900, "atk": 80, "armor": 60, "mr": 50, "atk_speed": 0.65, "atk_range": 1 },
+    "ability": {
+      "id": "holy_radiance",
+      "name": "Holy Radiance",
+      "description": "Heals all allies for [150/270/480] HP and grants 20 armor for 3 seconds.",
+      "mana_cost": 90,
+      "values": [150, 270, 480]
+    },
+    "sprite": "res://assets/art/units/elf_paladin.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "darkelf_heretic",
+    "name": "Void Whisperer",
+    "origin": "dark_elf",
+    "class": "heretic",
+    "cost": 3,
+    "stats": { "hp": 700, "atk": 90, "armor": 25, "mr": 60, "atk_speed": 0.9, "atk_range": 2 },
+    "ability": {
+      "id": "void_curse",
+      "name": "Void Curse",
+      "description": "Curses the target, reducing their armor and MR by 30 and dealing [220/400/720] magic damage over 3 seconds.",
+      "mana_cost": 65,
+      "values": [220, 400, 720]
+    },
+    "sprite": "res://assets/art/units/darkelf_heretic.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "orc_general",
+    "name": "Warlord Grunn",
+    "origin": "orc",
+    "class": "general",
+    "cost": 1,
+    "stats": { "hp": 650, "atk": 60, "armor": 30, "mr": 15, "atk_speed": 0.65, "atk_range": 1 },
+    "ability": {
+      "id": "battle_cry",
+      "name": "Battle Cry",
+      "description": "Lets out a war cry, granting all allies [10/18/30]% bonus attack damage for 4 seconds.",
+      "mana_cost": 70,
+      "values": [10, 18, 30]
+    },
+    "sprite": "res://assets/art/units/orc_general.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "orc_shepherd",
+    "name": "Beast Caller",
+    "origin": "orc",
+    "class": "shepherd",
+    "cost": 4,
+    "stats": { "hp": 1100, "atk": 85, "armor": 40, "mr": 30, "atk_speed": 0.7, "atk_range": 1 },
+    "ability": {
+      "id": "summon_beast",
+      "name": "Summon Beast",
+      "description": "Summons a spirit beast with [400/700/1200] HP that fights alongside allies for 6 seconds.",
+      "mana_cost": 100,
+      "values": [400, 700, 1200]
+    },
+    "sprite": "res://assets/art/units/orc_shepherd.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "undead_mystic",
+    "name": "Plague Seer",
+    "origin": "undead",
+    "class": "mystic",
+    "cost": 3,
+    "stats": { "hp": 600, "atk": 55, "armor": 20, "mr": 45, "atk_speed": 0.7, "atk_range": 3 },
+    "ability": {
+      "id": "plague_cloud",
+      "name": "Plague Cloud",
+      "description": "Releases a plague cloud on the largest cluster of enemies, dealing [160/290/520] magic damage and applying a 20% attack speed slow for 3 seconds.",
+      "mana_cost": 80,
+      "values": [160, 290, 520]
+    },
+    "sprite": "res://assets/art/units/undead_mystic.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "halfling_rogue",
+    "name": "Nimble Filch",
+    "origin": "halfling",
+    "class": "rogue",
+    "cost": 1,
+    "stats": { "hp": 400, "atk": 55, "armor": 10, "mr": 10, "atk_speed": 1.2, "atk_range": 1 },
+    "ability": {
+      "id": "backstab",
+      "name": "Backstab",
+      "description": "Darts behind the target and deals [100/180/320] physical damage. If the target has more than 50% HP, deals double damage.",
+      "mana_cost": 40,
+      "values": [100, 180, 320]
+    },
+    "sprite": "res://assets/art/units/halfling_rogue.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "faerie_merchant",
+    "name": "Dewpetal Trader",
+    "origin": "faerie",
+    "class": "merchant",
+    "cost": 4,
+    "stats": { "hp": 750, "atk": 70, "armor": 30, "mr": 40, "atk_speed": 0.8, "atk_range": 2 },
+    "ability": {
+      "id": "golden_dust",
+      "name": "Golden Dust",
+      "description": "Throws golden dust on all allies, granting them [25/45/80] bonus HP and [5/8/15]% extra gold from combat this round.",
+      "mana_cost": 85,
+      "values": [25, 45, 80]
+    },
+    "sprite": "res://assets/art/units/faerie_merchant.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "human_paladin",
+    "name": "Highborne Knight",
+    "origin": "human",
+    "class": "paladin",
+    "cost": 2,
+    "stats": { "hp": 750, "atk": 65, "armor": 45, "mr": 35, "atk_speed": 0.7, "atk_range": 1 },
+    "ability": {
+      "id": "sacred_ground",
+      "name": "Sacred Ground",
+      "description": "Consecrates the ground beneath them, healing all allies on adjacent hexes for [80/140/250] HP per second for 3 seconds.",
+      "mana_cost": 75,
+      "values": [80, 140, 250]
+    },
+    "sprite": "res://assets/art/units/human_paladin.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "gnome_heretic",
+    "name": "Tinkered Prophet",
+    "origin": "gnome",
+    "class": "heretic",
+    "cost": 3,
+    "stats": { "hp": 600, "atk": 80, "armor": 25, "mr": 50, "atk_speed": 0.85, "atk_range": 2 },
+    "ability": {
+      "id": "chaos_bolt",
+      "name": "Chaos Bolt",
+      "description": "Fires an unpredictable bolt that randomly deals [200/360/640] magic or physical damage to a random enemy.",
+      "mana_cost": 55,
+      "values": [200, 360, 640]
+    },
+    "sprite": "res://assets/art/units/gnome_heretic.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "dryad_shepherd",
+    "name": "Grove Tender",
+    "origin": "dryad",
+    "class": "shepherd",
+    "cost": 2,
+    "stats": { "hp": 700, "atk": 45, "armor": 35, "mr": 35, "atk_speed": 0.65, "atk_range": 1 },
+    "ability": {
+      "id": "nature_mend",
+      "name": "Nature's Mend",
+      "description": "Channels nature's energy to heal the lowest-HP ally for [200/360/640] HP.",
+      "mana_cost": 60,
+      "values": [200, 360, 640]
+    },
+    "sprite": "res://assets/art/units/dryad_shepherd.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "undead_general",
+    "name": "Death Commander",
+    "origin": "undead",
+    "class": "general",
+    "cost": 4,
+    "stats": { "hp": 1200, "atk": 100, "armor": 50, "mr": 35, "atk_speed": 0.7, "atk_range": 1 },
+    "ability": {
+      "id": "undying_will",
+      "name": "Undying Will",
+      "description": "Commands the undead: on death, resurrects with [20/35/60]% of max HP for 5 seconds.",
+      "mana_cost": 120,
+      "values": [20, 35, 60]
+    },
+    "sprite": "res://assets/art/units/undead_general.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "darkelf_mystic",
+    "name": "Drow Arcanist",
+    "origin": "dark_elf",
+    "class": "mystic",
+    "cost": 2,
+    "stats": { "hp": 500, "atk": 70, "armor": 15, "mr": 55, "atk_speed": 0.8, "atk_range": 3 },
+    "ability": {
+      "id": "dark_nova",
+      "name": "Dark Nova",
+      "description": "Unleashes dark energy in a line, dealing [175/315/565] magic damage to all enemies hit.",
+      "mana_cost": 65,
+      "values": [175, 315, 565]
+    },
+    "sprite": "res://assets/art/units/darkelf_mystic.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "halfling_merchant",
+    "name": "Cellar Dealer",
+    "origin": "halfling",
+    "class": "merchant",
+    "cost": 2,
+    "stats": { "hp": 500, "atk": 55, "armor": 15, "mr": 20, "atk_speed": 0.9, "atk_range": 2 },
+    "ability": {
+      "id": "smoke_bomb",
+      "name": "Smoke Bomb",
+      "description": "Throws a smoke bomb, causing all enemies within 2 hexes to miss their next [1/2/3] attack(s).",
+      "mana_cost": 50,
+      "values": [1, 2, 3]
+    },
+    "sprite": "res://assets/art/units/halfling_merchant.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "faerie_sage",
+    "name": "Willow Sage",
+    "origin": "faerie",
+    "class": "sage",
+    "cost": 3,
+    "stats": { "hp": 580, "atk": 65, "armor": 25, "mr": 55, "atk_speed": 0.75, "atk_range": 3 },
+    "ability": {
+      "id": "ancient_wisdom",
+      "name": "Ancient Wisdom",
+      "description": "Grants the nearest ally [20/35/60]% bonus ability damage and 40 magic resistance for 5 seconds.",
+      "mana_cost": 80,
+      "values": [20, 35, 60]
+    },
+    "sprite": "res://assets/art/units/faerie_sage.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "elf_rogue",
+    "name": "Moonblade Duelist",
+    "origin": "elf",
+    "class": "rogue",
+    "cost": 4,
+    "stats": { "hp": 800, "atk": 110, "armor": 30, "mr": 30, "atk_speed": 1.0, "atk_range": 1 },
+    "ability": {
+      "id": "moonblade_flurry",
+      "name": "Moonblade Flurry",
+      "description": "Strikes the target 3 times in rapid succession, each hit dealing [120/215/385] physical damage.",
+      "mana_cost": 70,
+      "values": [120, 215, 385]
+    },
+    "sprite": "res://assets/art/units/elf_rogue.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "human_general",
+    "name": "Royal Commander",
+    "origin": "human",
+    "class": "general",
+    "cost": 5,
+    "stats": { "hp": 1400, "atk": 120, "armor": 70, "mr": 50, "atk_speed": 0.75, "atk_range": 1 },
+    "ability": {
+      "id": "royal_decree",
+      "name": "Royal Decree",
+      "description": "Issues a decree that grants all allies [20/35/60]% attack damage and [15/25/40]% attack speed for 6 seconds.",
+      "mana_cost": 130,
+      "values": [20, 35, 60]
+    },
+    "sprite": "res://assets/art/units/human_general.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "orc_mystic",
+    "name": "Bloodshaman",
+    "origin": "orc",
+    "class": "mystic",
+    "cost": 3,
+    "stats": { "hp": 750, "atk": 70, "armor": 30, "mr": 40, "atk_speed": 0.7, "atk_range": 2 },
+    "ability": {
+      "id": "blood_ritual",
+      "name": "Blood Ritual",
+      "description": "Sacrifices [8/12/20]% of own HP to deal triple that amount as magic damage to all enemies.",
+      "mana_cost": 60,
+      "values": [8, 12, 20]
+    },
+    "sprite": "res://assets/art/units/orc_mystic.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "dryad_mystic",
+    "name": "Wisp Caller",
+    "origin": "dryad",
+    "class": "mystic",
+    "cost": 5,
+    "stats": { "hp": 1000, "atk": 90, "armor": 40, "mr": 70, "atk_speed": 0.8, "atk_range": 3 },
+    "ability": {
+      "id": "wisp_storm",
+      "name": "Wisp Storm",
+      "description": "Summons 3 will-o-wisps that each seek an enemy and deal [250/450/800] magic damage on impact.",
+      "mana_cost": 110,
+      "values": [250, 450, 800]
+    },
+    "sprite": "res://assets/art/units/dryad_mystic.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "gnome_merchant",
+    "name": "Gadget Peddler",
+    "origin": "gnome",
+    "class": "merchant",
+    "cost": 1,
+    "stats": { "hp": 450, "atk": 45, "armor": 15, "mr": 15, "atk_speed": 0.8, "atk_range": 2 },
+    "ability": {
+      "id": "deploy_gadget",
+      "name": "Deploy Gadget",
+      "description": "Deploys a gadget at target location dealing [80/145/260] magic damage to nearby enemies every second for 3 seconds.",
+      "mana_cost": 55,
+      "values": [80, 145, 260]
+    },
+    "sprite": "res://assets/art/units/gnome_merchant.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "human_sage",
+    "name": "Scholar Mage",
+    "origin": "human",
+    "class": "sage",
+    "cost": 2,
+    "stats": { "hp": 550, "atk": 60, "armor": 20, "mr": 45, "atk_speed": 0.7, "atk_range": 3 },
+    "ability": {
+      "id": "tome_knowledge",
+      "name": "Tome of Knowledge",
+      "description": "Opens the tome, reducing all allies' ability mana costs by [10/18/30]% for 5 seconds.",
+      "mana_cost": 70,
+      "values": [10, 18, 30]
+    },
+    "sprite": "res://assets/art/units/human_sage.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  },
+  {
+    "id": "avian_general",
+    "name": "Sky Marshal",
+    "origin": "avian",
+    "class": "general",
+    "cost": 4,
+    "stats": { "hp": 1000, "atk": 95, "armor": 45, "mr": 35, "atk_speed": 0.8, "atk_range": 2 },
+    "ability": {
+      "id": "aerial_assault",
+      "name": "Aerial Assault",
+      "description": "Commands a diving strike on the target hex, dealing [300/540/970] physical damage to all enemies in the area.",
+      "mana_cost": 100,
+      "values": [300, 540, 970]
+    },
+    "sprite": "res://assets/art/units/avian_general.png",
+    "star2_multiplier": 1.8,
+    "star3_multiplier": 3.24
+  }
+]

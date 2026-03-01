@@ -1,0 +1,218 @@
+{
+  "origins": [
+    {
+      "id": "avian",
+      "display_name": "Avian",
+      "type": "origin",
+      "description": "Avians soar above the battlefield. At thresholds, all Avians gain bonus attack speed.",
+      "thresholds": [2, 4, 6],
+      "tiers": [
+        { "count": 2, "bonuses": { "atk_speed_pct": 15 } },
+        { "count": 4, "bonuses": { "atk_speed_pct": 30 } },
+        { "count": 6, "bonuses": { "atk_speed_pct": 55 } }
+      ]
+    },
+    {
+      "id": "dwarf",
+      "display_name": "Dwarf",
+      "type": "origin",
+      "description": "Dwarven engineering bolsters armor. All Dwarves gain flat armor.",
+      "thresholds": [2, 4],
+      "tiers": [
+        { "count": 2, "bonuses": { "armor_flat": 25 } },
+        { "count": 4, "bonuses": { "armor_flat": 60, "mr_flat": 20 } }
+      ]
+    },
+    {
+      "id": "elf",
+      "display_name": "Elf",
+      "type": "origin",
+      "description": "Elven arcane training amplifies spell power. All Elves gain ability damage.",
+      "thresholds": [2, 4, 6],
+      "tiers": [
+        { "count": 2, "bonuses": { "ability_dmg_pct": 15 } },
+        { "count": 4, "bonuses": { "ability_dmg_pct": 30 } },
+        { "count": 6, "bonuses": { "ability_dmg_pct": 55 } }
+      ]
+    },
+    {
+      "id": "dark_elf",
+      "display_name": "Dark Elf",
+      "type": "origin",
+      "description": "Dark Elves thrive in shadows. All Dark Elves gain a dodge chance.",
+      "thresholds": [2, 4],
+      "tiers": [
+        { "count": 2, "bonuses": { "dodge_pct": 15 } },
+        { "count": 4, "bonuses": { "dodge_pct": 30, "ability_dmg_pct": 15 } }
+      ]
+    },
+    {
+      "id": "faerie",
+      "display_name": "Faerie",
+      "type": "origin",
+      "description": "Faerie magic restores life. All Faeries heal on each kill.",
+      "thresholds": [2, 4],
+      "tiers": [
+        { "count": 2, "bonuses": { "heal_on_kill": 100 } },
+        { "count": 4, "bonuses": { "heal_on_kill": 200, "mr_flat": 25 } }
+      ]
+    },
+    {
+      "id": "orc",
+      "display_name": "Orc",
+      "type": "origin",
+      "description": "Orc aggression grows with blood shed. All Orcs gain attack damage.",
+      "thresholds": [2, 4, 6],
+      "tiers": [
+        { "count": 2, "bonuses": { "atk_pct": 15 } },
+        { "count": 4, "bonuses": { "atk_pct": 30 } },
+        { "count": 6, "bonuses": { "atk_pct": 50, "hp_pct": 15 } }
+      ]
+    },
+    {
+      "id": "undead",
+      "display_name": "Undead",
+      "type": "origin",
+      "description": "Undead flesh resists physical blows. All Undead gain HP and armor.",
+      "thresholds": [2, 4],
+      "tiers": [
+        { "count": 2, "bonuses": { "hp_pct": 15, "armor_flat": 15 } },
+        { "count": 4, "bonuses": { "hp_pct": 30, "armor_flat": 40 } }
+      ]
+    },
+    {
+      "id": "halfling",
+      "display_name": "Halfling",
+      "type": "origin",
+      "description": "Halflings are quick and hard to pin down. All Halflings gain attack speed and dodge.",
+      "thresholds": [2, 4],
+      "tiers": [
+        { "count": 2, "bonuses": { "atk_speed_pct": 10, "dodge_pct": 10 } },
+        { "count": 4, "bonuses": { "atk_speed_pct": 20, "dodge_pct": 20 } }
+      ]
+    },
+    {
+      "id": "dryad",
+      "display_name": "Dryad",
+      "type": "origin",
+      "description": "Dryads are rooted in the land. All Dryads gain HP and heal over time.",
+      "thresholds": [2, 3],
+      "tiers": [
+        { "count": 2, "bonuses": { "hp_pct": 20 } },
+        { "count": 3, "bonuses": { "hp_pct": 40, "heal_on_kill": 75 } }
+      ]
+    },
+    {
+      "id": "gnome",
+      "display_name": "Gnome",
+      "type": "origin",
+      "description": "Gnomish inventions reduce mana costs. All Gnomes charge abilities faster.",
+      "thresholds": [2, 4],
+      "tiers": [
+        { "count": 2, "bonuses": { "mana_flat": 15 } },
+        { "count": 4, "bonuses": { "mana_flat": 30, "ability_dmg_pct": 15 } }
+      ]
+    },
+    {
+      "id": "human",
+      "display_name": "Human",
+      "type": "origin",
+      "description": "Humans are adaptable. Each Human on the board adds a free Reroll per prep phase.",
+      "thresholds": [2, 4],
+      "tiers": [
+        { "count": 2, "bonuses": { "free_rerolls": 1 } },
+        { "count": 4, "bonuses": { "free_rerolls": 2, "xp_per_round": 1 } }
+      ]
+    }
+  ],
+  "classes": [
+    {
+      "id": "paladin",
+      "display_name": "Paladin",
+      "type": "class",
+      "description": "Paladins shield nearby allies. At thresholds, Paladins periodically grant shields to the lowest-HP ally.",
+      "thresholds": [2, 4],
+      "tiers": [
+        { "count": 2, "bonuses": { "hp_pct": 10, "armor_flat": 20 } },
+        { "count": 4, "bonuses": { "hp_pct": 20, "armor_flat": 40, "shield_per_round": 200 } }
+      ]
+    },
+    {
+      "id": "general",
+      "display_name": "General",
+      "type": "class",
+      "description": "Generals inspire armies. All allies near a General gain attack damage.",
+      "thresholds": [2, 3],
+      "tiers": [
+        { "count": 2, "bonuses": { "atk_pct": 15 } },
+        { "count": 3, "bonuses": { "atk_pct": 30, "atk_speed_pct": 10 } }
+      ]
+    },
+    {
+      "id": "mystic",
+      "display_name": "Mystic",
+      "type": "class",
+      "description": "Mystics weave powerful spells. All Mystics gain magic resistance and ability damage.",
+      "thresholds": [2, 4],
+      "tiers": [
+        { "count": 2, "bonuses": { "mr_flat": 30, "ability_dmg_pct": 10 } },
+        { "count": 4, "bonuses": { "mr_flat": 60, "ability_dmg_pct": 25 } }
+      ]
+    },
+    {
+      "id": "rogue",
+      "display_name": "Rogue",
+      "type": "class",
+      "description": "Rogues strike fast and vanish. All Rogues gain attack speed and dodge.",
+      "thresholds": [2, 4],
+      "tiers": [
+        { "count": 2, "bonuses": { "atk_speed_pct": 20, "dodge_pct": 10 } },
+        { "count": 4, "bonuses": { "atk_speed_pct": 40, "dodge_pct": 20 } }
+      ]
+    },
+    {
+      "id": "merchant",
+      "display_name": "Merchant",
+      "type": "class",
+      "description": "Merchants profit from battle. Each combat win generates bonus gold.",
+      "thresholds": [2, 4],
+      "tiers": [
+        { "count": 2, "bonuses": { "gold_per_win": 1 } },
+        { "count": 4, "bonuses": { "gold_per_win": 2, "gold_per_round": 1 } }
+      ]
+    },
+    {
+      "id": "sage",
+      "display_name": "Sage",
+      "type": "class",
+      "description": "Sages grow stronger as the age progresses. All Sages gain increasing ability damage each round.",
+      "thresholds": [2, 3],
+      "tiers": [
+        { "count": 2, "bonuses": { "ability_dmg_pct": 10, "mr_flat": 20 } },
+        { "count": 3, "bonuses": { "ability_dmg_pct": 20, "mr_flat": 35, "sage_scaling": true } }
+      ]
+    },
+    {
+      "id": "shepherd",
+      "display_name": "Shepherd",
+      "type": "class",
+      "description": "Shepherds sustain their flock. All allies gain HP regeneration each second in combat.",
+      "thresholds": [2, 4],
+      "tiers": [
+        { "count": 2, "bonuses": { "hp_regen_pct": 1 } },
+        { "count": 4, "bonuses": { "hp_regen_pct": 2, "hp_pct": 15 } }
+      ]
+    },
+    {
+      "id": "heretic",
+      "display_name": "Heretic",
+      "type": "class",
+      "description": "Heretics shatter magical defenses. All Heretics' abilities reduce the target's magic resistance on hit.",
+      "thresholds": [2, 4],
+      "tiers": [
+        { "count": 2, "bonuses": { "mr_shred_flat": 15 } },
+        { "count": 4, "bonuses": { "mr_shred_flat": 30, "ability_dmg_pct": 15 } }
+      ]
+    }
+  ]
+}

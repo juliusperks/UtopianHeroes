@@ -1,0 +1,164 @@
+[
+  {
+    "round": 1,
+    "type": "pve",
+    "display_label": "Round 1 - Goblin Raiders",
+    "enemies": [
+      { "unit_id": "orc_general", "star": 1, "count": 2 }
+    ],
+    "base_damage": 0,
+    "damage_per_surviving_unit": 1
+  },
+  {
+    "round": 2,
+    "type": "pve",
+    "display_label": "Round 2 - Wolf Pack",
+    "enemies": [
+      { "unit_id": "avian_rogue", "star": 1, "count": 3 }
+    ],
+    "base_damage": 0,
+    "damage_per_surviving_unit": 1
+  },
+  {
+    "round": 3,
+    "type": "pve",
+    "display_label": "Round 3 - Undead Horde",
+    "enemies": [
+      { "unit_id": "undead_mystic", "star": 1, "count": 2 },
+      { "unit_id": "orc_general", "star": 1, "count": 1 }
+    ],
+    "base_damage": 0,
+    "damage_per_surviving_unit": 1
+  },
+  {
+    "round": 4,
+    "type": "carousel",
+    "display_label": "Shared Draft - Choose a free unit!",
+    "carousel_units": ["avian_paladin", "dwarf_general", "elf_mystic", "halfling_rogue", "orc_general", "dryad_shepherd", "gnome_merchant", "human_sage"],
+    "base_damage": 0,
+    "damage_per_surviving_unit": 0
+  },
+  {
+    "round": 5,
+    "type": "pvp",
+    "display_label": "Round 5 - PvP",
+    "base_damage": 2,
+    "damage_per_surviving_unit": 1
+  },
+  {
+    "round": 6,
+    "type": "pvp",
+    "display_label": "Round 6 - PvP",
+    "base_damage": 2,
+    "damage_per_surviving_unit": 1
+  },
+  {
+    "round": 7,
+    "type": "pvp",
+    "display_label": "Round 7 - PvP",
+    "base_damage": 3,
+    "damage_per_surviving_unit": 1
+  },
+  {
+    "round": 8,
+    "type": "pve",
+    "display_label": "Round 8 - Dragon's Guard",
+    "enemies": [
+      { "unit_id": "avian_general", "star": 2, "count": 1 },
+      { "unit_id": "dwarf_general", "star": 1, "count": 2 }
+    ],
+    "base_damage": 0,
+    "damage_per_surviving_unit": 2
+  },
+  {
+    "round": 9,
+    "type": "pvp",
+    "display_label": "Round 9 - PvP",
+    "base_damage": 3,
+    "damage_per_surviving_unit": 1
+  },
+  {
+    "round": 10,
+    "type": "pvp",
+    "display_label": "Round 10 - PvP",
+    "base_damage": 3,
+    "damage_per_surviving_unit": 1
+  },
+  {
+    "round": 11,
+    "type": "pvp",
+    "display_label": "Round 11 - PvP",
+    "base_damage": 4,
+    "damage_per_surviving_unit": 1
+  },
+  {
+    "round": 12,
+    "type": "carousel",
+    "display_label": "Shared Draft - Choose a free unit!",
+    "carousel_units": ["elf_paladin", "darkelf_heretic", "orc_shepherd", "undead_mystic", "faerie_merchant", "gnome_heretic", "dryad_shepherd", "human_paladin"],
+    "base_damage": 0,
+    "damage_per_surviving_unit": 0
+  },
+  {
+    "round": 13,
+    "type": "pvp",
+    "display_label": "Round 13 - PvP",
+    "base_damage": 5,
+    "damage_per_surviving_unit": 1
+  },
+  {
+    "round": 14,
+    "type": "pvp",
+    "display_label": "Round 14 - PvP",
+    "base_damage": 5,
+    "damage_per_surviving_unit": 2
+  },
+  {
+    "round": 15,
+    "type": "pve",
+    "display_label": "Round 15 - Ancient Dragon",
+    "enemies": [
+      { "unit_id": "dryad_mystic", "star": 2, "count": 1 },
+      { "unit_id": "undead_general", "star": 1, "count": 1 },
+      { "unit_id": "orc_shepherd", "star": 1, "count": 1 }
+    ],
+    "base_damage": 0,
+    "damage_per_surviving_unit": 3
+  },
+  {
+    "round": 16,
+    "type": "pvp",
+    "display_label": "Round 16 - PvP",
+    "base_damage": 6,
+    "damage_per_surviving_unit": 2
+  },
+  {
+    "round": 17,
+    "type": "pvp",
+    "display_label": "Round 17 - PvP",
+    "base_damage": 6,
+    "damage_per_surviving_unit": 2
+  },
+  {
+    "round": 18,
+    "type": "pvp",
+    "display_label": "Round 18 - PvP",
+    "base_damage": 7,
+    "damage_per_surviving_unit": 2
+  },
+  {
+    "round": 19,
+    "type": "carousel",
+    "display_label": "Final Draft - Choose a powerful unit!",
+    "carousel_units": ["human_general", "dryad_mystic", "undead_general", "elf_rogue", "avian_general", "orc_shepherd", "faerie_merchant", "faerie_sage"],
+    "base_damage": 0,
+    "damage_per_surviving_unit": 0
+  },
+  {
+    "round": 20,
+    "type": "pvp",
+    "display_label": "Round 20 - PvP",
+    "base_damage": 8,
+    "damage_per_surviving_unit": 2
+  }
+]
