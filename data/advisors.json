@@ -1,0 +1,439 @@
+{
+  "avian": [
+    {
+      "id": "avian_bloodfeather",
+      "name": "Bloodfeather Scout",
+      "description": "Avian strikes drain 20% of damage dealt as HP.",
+      "cost": 3,
+      "bonus": { "lifesteal_pct": 20 }
+    },
+    {
+      "id": "avian_iron_plume",
+      "name": "Iron Plume",
+      "description": "Avian units gain +30 armor from hardened feathers.",
+      "cost": 3,
+      "bonus": { "armor_flat": 30 }
+    },
+    {
+      "id": "avian_eagle_eye",
+      "name": "Eagle Eye",
+      "description": "Avian units attack +15% faster — sky predator focus.",
+      "cost": 3,
+      "bonus": { "atk_speed_pct": 15 }
+    }
+  ],
+  "dwarf": [
+    {
+      "id": "dwarf_runite_ward",
+      "name": "Runite Ward",
+      "description": "Dwarf rune-warding grants +30 magic resistance.",
+      "cost": 3,
+      "bonus": { "mr_flat": 30 }
+    },
+    {
+      "id": "dwarf_forge_master",
+      "name": "Forge Master",
+      "description": "Dwarf forge-mastery amplifies ability damage by 25%.",
+      "cost": 4,
+      "bonus": { "ability_dmg_pct": 25 }
+    },
+    {
+      "id": "dwarf_stone_bastion",
+      "name": "Stone Bastion",
+      "description": "Dwarf units gain +15% HP from fortress conditioning.",
+      "cost": 3,
+      "bonus": { "hp_pct": 15 }
+    }
+  ],
+  "elf": [
+    {
+      "id": "elf_moonveil",
+      "name": "Moonveil",
+      "description": "Elf grace grants a 15% chance to dodge attacks.",
+      "cost": 4,
+      "bonus": { "dodge_pct": 15 }
+    },
+    {
+      "id": "elf_arcane_focus",
+      "name": "Arcane Focus",
+      "description": "Elf arcane training amplifies ability damage by 20%.",
+      "cost": 4,
+      "bonus": { "ability_dmg_pct": 20 }
+    },
+    {
+      "id": "elf_silverleaf",
+      "name": "Silverleaf",
+      "description": "Elf battle refinement grants +15% attack damage.",
+      "cost": 3,
+      "bonus": { "atk_pct": 15 }
+    }
+  ],
+  "dark_elf": [
+    {
+      "id": "darkelf_soul_siphon",
+      "name": "Soul Siphon",
+      "description": "Dark elf shadow arts drain 18% of damage dealt as HP.",
+      "cost": 4,
+      "bonus": { "lifesteal_pct": 18 }
+    },
+    {
+      "id": "darkelf_shadowstep",
+      "name": "Shadowstep",
+      "description": "Dark elf evasion grants a 15% chance to dodge attacks.",
+      "cost": 4,
+      "bonus": { "dodge_pct": 15 }
+    },
+    {
+      "id": "darkelf_hexweave",
+      "name": "Hexweave",
+      "description": "Dark elf curses shred an additional 10 enemy MR on each auto-attack.",
+      "cost": 4,
+      "bonus": { "mr_shred_flat": 10 }
+    }
+  ],
+  "orc": [
+    {
+      "id": "orc_blood_rage",
+      "name": "Blood Rage",
+      "description": "Orc fury grants +15% attack speed — berserker rage.",
+      "cost": 3,
+      "bonus": { "atk_speed_pct": 15 }
+    },
+    {
+      "id": "orc_warlust",
+      "name": "Warlust",
+      "description": "Orc brutality grants +20% HP from raw constitution.",
+      "cost": 3,
+      "bonus": { "hp_pct": 20 }
+    },
+    {
+      "id": "orc_bone_crusher",
+      "name": "Bone Crusher",
+      "description": "Orc kills restore 60 HP — trophies fuel their bloodlust.",
+      "cost": 3,
+      "bonus": { "heal_on_kill": 60 }
+    }
+  ],
+  "undead": [
+    {
+      "id": "undead_grave_pact",
+      "name": "Grave Pact",
+      "description": "Undead kills restore 80 HP — they feast on death energy.",
+      "cost": 3,
+      "bonus": { "heal_on_kill": 80 }
+    },
+    {
+      "id": "undead_hunger",
+      "name": "Undying Hunger",
+      "description": "Undead drain 15% of damage dealt as life force.",
+      "cost": 3,
+      "bonus": { "lifesteal_pct": 15 }
+    },
+    {
+      "id": "undead_plague_wind",
+      "name": "Plague Wind",
+      "description": "Undead plague amplifies ability damage by 20%.",
+      "cost": 4,
+      "bonus": { "ability_dmg_pct": 20 }
+    }
+  ],
+  "halfling": [
+    {
+      "id": "halfling_quick_fingers",
+      "name": "Quick Fingers",
+      "description": "Halfling nimbleness grants +20% attack speed.",
+      "cost": 3,
+      "bonus": { "atk_speed_pct": 20 }
+    },
+    {
+      "id": "halfling_coinpurse",
+      "name": "Coinpurse",
+      "description": "Halfling dealings earn +2 extra gold each round.",
+      "cost": 3,
+      "bonus": { "gold_per_round": 2 }
+    },
+    {
+      "id": "halfling_shadow_slip",
+      "name": "Shadow Slip",
+      "description": "Halfling trickery grants a 20% chance to dodge attacks.",
+      "cost": 4,
+      "bonus": { "dodge_pct": 20 }
+    }
+  ],
+  "faerie": [
+    {
+      "id": "faerie_mana_bloom",
+      "name": "Mana Bloom",
+      "description": "Faerie magic grants +20 starting mana each combat.",
+      "cost": 3,
+      "bonus": { "mana_flat": 20 }
+    },
+    {
+      "id": "faerie_enchanted_wing",
+      "name": "Enchanted Wing",
+      "description": "Faerie blessings amplify ability damage by 25%.",
+      "cost": 4,
+      "bonus": { "ability_dmg_pct": 25 }
+    },
+    {
+      "id": "faerie_fairy_ward",
+      "name": "Fairy Ward",
+      "description": "Faerie protection grants +15% HP from enchanted vitality.",
+      "cost": 3,
+      "bonus": { "hp_pct": 15 }
+    }
+  ],
+  "human": [
+    {
+      "id": "human_noble_resolve",
+      "name": "Noble Resolve",
+      "description": "Human discipline grants +20 armor and +20 MR.",
+      "cost": 4,
+      "bonus": { "armor_flat": 20, "mr_flat": 20 }
+    },
+    {
+      "id": "human_treasury",
+      "name": "Treasury",
+      "description": "Human commerce earns +1 extra gold each round.",
+      "cost": 3,
+      "bonus": { "gold_per_round": 1 }
+    },
+    {
+      "id": "human_banner",
+      "name": "Banner of Men",
+      "description": "Human leadership grants +15% attack damage.",
+      "cost": 3,
+      "bonus": { "atk_pct": 15 }
+    }
+  ],
+  "gnome": [
+    {
+      "id": "gnome_gadget_mastery",
+      "name": "Gadget Mastery",
+      "description": "Gnome tinkering amplifies ability damage by 30%.",
+      "cost": 4,
+      "bonus": { "ability_dmg_pct": 30 }
+    },
+    {
+      "id": "gnome_spring_heels",
+      "name": "Spring Heels",
+      "description": "Gnome gadget boots grant +15% attack speed.",
+      "cost": 3,
+      "bonus": { "atk_speed_pct": 15 }
+    },
+    {
+      "id": "gnome_armour_plating",
+      "name": "Armour Plating",
+      "description": "Gnome engineering grants +30 armor from custom plate.",
+      "cost": 3,
+      "bonus": { "armor_flat": 30 }
+    }
+  ],
+  "dryad": [
+    {
+      "id": "dryad_grove_heart",
+      "name": "Grove's Heart",
+      "description": "Dryad nature magic grants +20% HP.",
+      "cost": 3,
+      "bonus": { "hp_pct": 20 }
+    },
+    {
+      "id": "dryad_root_armor",
+      "name": "Root Armor",
+      "description": "Dryad bark-weaving grants +28 armor.",
+      "cost": 3,
+      "bonus": { "armor_flat": 28 }
+    },
+    {
+      "id": "dryad_verdant_mist",
+      "name": "Verdant Mist",
+      "description": "Dryad nature spirits restore 50 HP on each kill.",
+      "cost": 3,
+      "bonus": { "heal_on_kill": 50 }
+    }
+  ],
+  "paladin": [
+    {
+      "id": "paladin_sacred_armor",
+      "name": "Sacred Armor",
+      "description": "Holy blessing grants +40 armor.",
+      "cost": 3,
+      "bonus": { "armor_flat": 40 }
+    },
+    {
+      "id": "paladin_holy_ward",
+      "name": "Holy Ward",
+      "description": "Divine warding grants +35 magic resistance.",
+      "cost": 3,
+      "bonus": { "mr_flat": 35 }
+    },
+    {
+      "id": "paladin_crusaders_oath",
+      "name": "Crusader's Oath",
+      "description": "Holy conviction restores 60 HP on each kill.",
+      "cost": 3,
+      "bonus": { "heal_on_kill": 60 }
+    }
+  ],
+  "rogue": [
+    {
+      "id": "rogue_shadow_step",
+      "name": "Shadow Step",
+      "description": "Rogue training grants a 20% chance to dodge attacks.",
+      "cost": 4,
+      "bonus": { "dodge_pct": 20 }
+    },
+    {
+      "id": "rogue_poisoned_blade",
+      "name": "Poisoned Blade",
+      "description": "Rogue venom amplifies ability damage by 20%.",
+      "cost": 3,
+      "bonus": { "ability_dmg_pct": 20 }
+    },
+    {
+      "id": "rogue_adrenaline",
+      "name": "Adrenaline Rush",
+      "description": "Rogue instincts grant +20% attack speed.",
+      "cost": 3,
+      "bonus": { "atk_speed_pct": 20 }
+    }
+  ],
+  "general": [
+    {
+      "id": "general_iron_formation",
+      "name": "Iron Formation",
+      "description": "General's tactics grant +20% HP to all fighters.",
+      "cost": 3,
+      "bonus": { "hp_pct": 20 }
+    },
+    {
+      "id": "general_battle_cry",
+      "name": "Battle Cry",
+      "description": "General's command grants +15% attack damage.",
+      "cost": 3,
+      "bonus": { "atk_pct": 15 }
+    },
+    {
+      "id": "general_vanguard",
+      "name": "Vanguard",
+      "description": "General's shield discipline grants +25 armor.",
+      "cost": 3,
+      "bonus": { "armor_flat": 25 }
+    }
+  ],
+  "sage": [
+    {
+      "id": "sage_ancient_codex",
+      "name": "Ancient Codex",
+      "description": "Sage scholarship amplifies ability damage by 35%.",
+      "cost": 5,
+      "bonus": { "ability_dmg_pct": 35 }
+    },
+    {
+      "id": "sage_mana_reservoir",
+      "name": "Mana Reservoir",
+      "description": "Sage meditation grants +25 starting mana each combat.",
+      "cost": 3,
+      "bonus": { "mana_flat": 25 }
+    },
+    {
+      "id": "sage_scholarly_guard",
+      "name": "Scholarly Guard",
+      "description": "Sage arcane shielding grants +30 magic resistance.",
+      "cost": 3,
+      "bonus": { "mr_flat": 30 }
+    }
+  ],
+  "mystic": [
+    {
+      "id": "mystic_arcane_torrent",
+      "name": "Arcane Torrent",
+      "description": "Mystic power amplifies ability damage by 40%.",
+      "cost": 5,
+      "bonus": { "ability_dmg_pct": 40 }
+    },
+    {
+      "id": "mystic_spell_breaker",
+      "name": "Spell Breaker",
+      "description": "Mystic unraveling shreds 15 additional enemy MR on auto-attacks.",
+      "cost": 4,
+      "bonus": { "mr_shred_flat": 15 }
+    },
+    {
+      "id": "mystic_ether_core",
+      "name": "Ether Core",
+      "description": "Mystic channeling grants +25 starting mana each combat.",
+      "cost": 3,
+      "bonus": { "mana_flat": 25 }
+    }
+  ],
+  "heretic": [
+    {
+      "id": "heretic_dark_bargain",
+      "name": "Dark Bargain",
+      "description": "Heretic pact grants +25% attack damage at a hidden cost.",
+      "cost": 4,
+      "bonus": { "atk_pct": 25 }
+    },
+    {
+      "id": "heretic_chaos_rite",
+      "name": "Chaos Rite",
+      "description": "Heretic ritual amplifies ability damage by 30%.",
+      "cost": 4,
+      "bonus": { "ability_dmg_pct": 30 }
+    },
+    {
+      "id": "heretic_blood_pact",
+      "name": "Blood Pact",
+      "description": "Heretic blood magic drains 20% of damage dealt as HP.",
+      "cost": 4,
+      "bonus": { "lifesteal_pct": 20 }
+    }
+  ],
+  "shepherd": [
+    {
+      "id": "shepherd_wardens_gift",
+      "name": "Warden's Gift",
+      "description": "Shepherd blessing grants +20% HP.",
+      "cost": 3,
+      "bonus": { "hp_pct": 20 }
+    },
+    {
+      "id": "shepherd_healing_spring",
+      "name": "Healing Spring",
+      "description": "Shepherd's spring restores 60 HP on each kill.",
+      "cost": 3,
+      "bonus": { "heal_on_kill": 60 }
+    },
+    {
+      "id": "shepherd_grove_ward",
+      "name": "Grove Ward",
+      "description": "Shepherd nature-ward grants +20 armor and +20 MR.",
+      "cost": 4,
+      "bonus": { "armor_flat": 20, "mr_flat": 20 }
+    }
+  ],
+  "merchant": [
+    {
+      "id": "merchant_shrewd_dealings",
+      "name": "Shrewd Dealings",
+      "description": "Merchant cunning earns +2 extra gold each round.",
+      "cost": 3,
+      "bonus": { "gold_per_round": 2 }
+    },
+    {
+      "id": "merchant_gilded_arms",
+      "name": "Gilded Arms",
+      "description": "Merchant-sourced weapons grant +15% attack damage.",
+      "cost": 3,
+      "bonus": { "atk_pct": 15 }
+    },
+    {
+      "id": "merchant_market_insight",
+      "name": "Market Insight",
+      "description": "Merchant foresight grants +20 starting mana each combat.",
+      "cost": 3,
+      "bonus": { "mana_flat": 20 }
+    }
+  ]
+}

@@ -14,6 +14,7 @@ extends Resource
 @export var base_mr: float = 20.0       # magic resistance
 @export var atk_speed: float = 0.7      # attacks per second
 @export var atk_range: int = 1          # 1 = melee, 2+ = ranged
+@export var magic_attacker: bool = false  # auto-attacks deal magic damage (mystic/heretic)
 
 # Ability
 @export var ability_id: String = ""

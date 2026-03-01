@@ -3,3 +3,8 @@ res://autoloads/RoundManager.gd
 res://autoloads/ShopManager.gd
 res://autoloads/GameState.gd
 res://scenes/battle/BattleArena.gd
+res://autoloads/DataLoader.gd
+res://resources/unit_data.gd
+res://autoloads/SignalBus.gd
+res://scenes/units/abilities/plague_cloud.gd
+res://autoloads/SynergyManager.gd

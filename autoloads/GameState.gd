@@ -47,6 +47,9 @@ class PlayerState:
 	# Items not yet equipped
 	var item_inventory: Array = [] # Array[String] item_ids
 
+	# Purchased advisors (persist for the whole game)
+	var advisors: Array = []       # Array[String] advisor_ids
+
 	# Temporary per-round bonuses (from trait effects like Merchant gold_per_win)
 	var pending_win_gold: int = 0
 	var free_rerolls_remaining: int = 0

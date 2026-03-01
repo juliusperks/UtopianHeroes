@@ -43,7 +43,14 @@ signal game_over(winner_player_id: int)
 signal item_equipped(player_id: int, unit_instance_id: String, item_id: String)
 signal item_unequipped(player_id: int, unit_instance_id: String, item_id: String)
 
+# --- Advisors ---
+signal synergy_tier_reached(player_id: int, trait_id: String, tier: int)
+signal advisor_offer_ready(player_id: int, trait_id: String, choices: Array)
+signal advisor_purchased(player_id: int, advisor_id: String)
+
 # --- UI helpers ---
 signal show_unit_tooltip(unit_data: UnitData, unit_instance: Dictionary)
 signal hide_unit_tooltip()
+signal show_trait_tooltip(trait_data: TraitData, count: int, active_tier: int)
+signal hide_trait_tooltip()
 signal show_message(text: String, duration: float)

@@ -64,11 +64,13 @@ func _spawn_unit(inst: Dictionary, team: int, coord: Vector2i, mirror: bool) -> 
 	unit_node.position = pixel_pos
 	add_child(unit_node)
 
-	# Apply synergy bonuses to combat stats
-	var bonuses: Dictionary = SynergyManager.get_unit_bonuses(
-		GameState.local_player_id if team == 0 else _opponent_id,
-		inst.get("unit_id", "")
-	)
+	# Apply synergy bonuses merged with advisor bonuses to combat stats.
+	var owner_id: int = GameState.local_player_id if team == 0 else _opponent_id
+	var bonuses: Dictionary = SynergyManager.get_unit_bonuses(owner_id, inst.get("unit_id", ""))
+	# Merge in advisor bonuses (additive, same key convention as synergies).
+	var advisor_bonuses: Dictionary = AdvisorManager.get_bonuses(owner_id)
+	for key in advisor_bonuses:
+		bonuses[key] = float(bonuses.get(key, 0)) + float(advisor_bonuses[key])
 	unit_node.setup_combat_stats(bonuses)
 
 	return unit_node
@@ -76,12 +78,18 @@ func _spawn_unit(inst: Dictionary, team: int, coord: Vector2i, mirror: bool) -> 
 func _board_coord_to_world(coord: Vector2i, mirror: bool) -> Vector2:
 	const HEX_W := 74.0
 	const HEX_H := 64.0
-	const BOARD_OFFSET_Y_PLAYER := 200.0
-	const BOARD_OFFSET_Y_ENEMY  := -200.0
+	const ROWS  := 4
 
 	var offset_x := HEX_W * 0.5 if (coord.y % 2 != 0) else 0.0
-	var x := HEX_W * coord.x + offset_x - (3.0 * HEX_W)  # center board
-	var y := HEX_H * coord.y + (BOARD_OFFSET_Y_ENEMY if mirror else BOARD_OFFSET_Y_PLAYER)
+	var x := HEX_W * coord.x + offset_x
+	var y: float
+	if mirror:
+		# Enemy starts above the board; row 3 (their frontline) is one hex above row 0,
+		# so they walk downward to engage player units on the visible hex tiles.
+		y = -HEX_H * float(ROWS - coord.y)
+	else:
+		# Player: identical to Board._hex_to_pixel so units land on their prep tiles.
+		y = HEX_H * coord.y
 	return Vector2(x, y)
 
 func _pick_opponent() -> int:

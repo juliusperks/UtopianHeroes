@@ -6,6 +6,10 @@ extends Node
 #   trait_id -> { count, tier, bonuses: {bonus_key: value} }
 var active_bonuses: Dictionary = {}
 
+# _prev_tiers[player_id][trait_id] = tier int from the last recalculate call.
+# Used to detect tier-up events and emit synergy_tier_reached.
+var _prev_tiers: Dictionary = {}
+
 func _ready() -> void:
 	pass
 
@@ -39,6 +43,16 @@ func recalculate(player_id: int) -> void:
 				"tier": tier,
 				"bonuses": tdata.get_bonuses_for_tier(tier)
 			}
+
+	# Detect tier increases and emit synergy_tier_reached for the advisor system.
+	var prev: Dictionary = _prev_tiers.get(player_id, {})
+	var new_tiers: Dictionary = {}
+	for trait_id in bonuses:
+		var tier: int = bonuses[trait_id]["tier"]
+		new_tiers[trait_id] = tier
+		if tier > prev.get(trait_id, 0):
+			SignalBus.synergy_tier_reached.emit(player_id, trait_id, tier)
+	_prev_tiers[player_id] = new_tiers
 
 	active_bonuses[player_id] = bonuses
 	SignalBus.synergies_updated.emit(player_id, bonuses)

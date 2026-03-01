@@ -2,6 +2,8 @@
 ## Deals magic damage to the largest cluster of enemies and slows their attack speed.
 extends UnitAbility
 
+const HEX_SIZE := 64.0
+
 func execute(allies: Array, enemies: Array) -> void:
 	if enemies.is_empty():
 		return

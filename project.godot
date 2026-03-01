@@ -28,6 +28,7 @@ RoundManager="*res://autoloads/RoundManager.gd"
 ShopManager="*res://autoloads/ShopManager.gd"
 EconomyManager="*res://autoloads/EconomyManager.gd"
 SynergyManager="*res://autoloads/SynergyManager.gd"
+AdvisorManager="*res://autoloads/AdvisorManager.gd"
 AIDirector="*res://autoloads/AIDirector.gd"
 
 [display]

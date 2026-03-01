@@ -72,6 +72,7 @@ func _parse_units(raw: Array) -> Dictionary:
 		u.base_mr             = float(entry["stats"]["mr"])
 		u.atk_speed           = float(entry["stats"]["atk_speed"])
 		u.atk_range           = int(entry["stats"]["atk_range"])
+		u.magic_attacker      = bool(entry.get("magic_attacker", false))
 		u.star2_multiplier    = float(entry.get("star2_multiplier", 1.8))
 		u.star3_multiplier    = float(entry.get("star3_multiplier", 3.24))
 		u.sprite_path         = entry.get("sprite", "")

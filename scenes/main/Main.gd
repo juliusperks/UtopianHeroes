@@ -9,6 +9,11 @@ const SynergyPanelScene := preload("res://scenes/ui/SynergyPanel.tscn")
 const PlayerListScene := preload("res://scenes/ui/PlayerList.tscn")
 const UnitInfoPopupScene := preload("res://scenes/ui/UnitInfoPopup.tscn")
 const RoundResultBannerScene := preload("res://scenes/ui/RoundResultBanner.tscn")
+const MAIN_BG_PATH := "res://assets/art/backgrounds/battlefield_bg.png"
+const MAIN_BG_SCALE := Vector2(0.46, 0.46)
+# World-space center of the 7×4 hex grid:
+#   board offset (-240,-280) + grid half-size (240, 96) = (0, -184)
+const MAIN_BG_OFFSET := Vector2(0.0, -184.0)
 
 var _board: Node
 var _battle_arena: Node
@@ -24,9 +29,9 @@ func _ready() -> void:
 	_start_game()
 
 func _build_scene() -> void:
-	# Background
+	# Base fallback backdrop behind the world.
 	var bg := ColorRect.new()
-	bg.color = Color(0.1, 0.12, 0.16)
+	bg.color = Color(0.08, 0.1, 0.14)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
 
@@ -35,6 +40,15 @@ func _build_scene() -> void:
 	world.position = Vector2(640, 360)  # center of 1280x720
 	add_child(world)
 
+	# Battlefield art is positioned in world space so it aligns with board coordinates.
+	if ResourceLoader.exists(MAIN_BG_PATH):
+		var bg_sprite := Sprite2D.new()
+		bg_sprite.texture = load(MAIN_BG_PATH)
+		bg_sprite.centered = true
+		bg_sprite.position = MAIN_BG_OFFSET
+		bg_sprite.scale = MAIN_BG_SCALE
+		world.add_child(bg_sprite)
+
 	# Board — offset to center the 7×4 grid on screen (world origin is at 640, 360)
 	# Board bounding box: x≈0..481, y≈0..224; bench adds y up to ~376
 	# This places board top-left at screen (400, 80), bench bottom at ~(400, 456)
@@ -42,8 +56,9 @@ func _build_scene() -> void:
 	_board.position = Vector2(-240.0, -280.0)
 	world.add_child(_board)
 
-	# Battle arena (overlaid, visible only during combat)
+	# Battle arena — same world offset as the board so hex positions align exactly.
 	_battle_arena = BattleArenaScene.instantiate()
+	_battle_arena.position = Vector2(-240.0, -280.0)
 	_battle_arena.visible = false
 	world.add_child(_battle_arena)
 
@@ -55,11 +70,15 @@ func _build_scene() -> void:
 	_result_banner = RoundResultBannerScene.instantiate()
 	add_child(_result_banner)
 
-	# Unit info popup (CanvasLayer)
+	# Unit info popup + trait info popup + advisor offer popup (shared CanvasLayer, always on top)
 	var popup_layer := CanvasLayer.new()
 	add_child(popup_layer)
 	_unit_info_popup = UnitInfoPopupScene.instantiate()
 	popup_layer.add_child(_unit_info_popup)
+	var trait_popup: Node = load("res://scenes/ui/TraitInfoPopup.gd").new()
+	popup_layer.add_child(trait_popup)
+	var advisor_popup: Node = load("res://scenes/ui/AdvisorOfferPopup.gd").new()
+	popup_layer.add_child(advisor_popup)
 
 	# Shop panel — bottom of screen
 	# ShopSlot min size is 110×150; 5 slots + padding ≈ 590×218px total panel size.

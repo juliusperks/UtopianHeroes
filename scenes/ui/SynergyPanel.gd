@@ -41,8 +41,16 @@ func _rebuild_list() -> void:
 
 	var synergies := SynergyManager.get_display_synergies(GameState.local_player_id)
 	for entry in synergies:
+		# Wrap the row in a Control that intercepts mouse events for hover tooltip.
+		var wrapper := Control.new()
+		wrapper.custom_minimum_size = Vector2(0, 18)
+		wrapper.mouse_filter = Control.MOUSE_FILTER_STOP
+		wrapper.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 4)
+		row.set_anchors_preset(Control.PRESET_FULL_RECT)
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 		# Tier pip indicator
 		var pip_label := Label.new()
@@ -50,6 +58,7 @@ func _rebuild_list() -> void:
 		pip_label.text = "●" if entry["tier"] >= entry["max_tier"] else "◐" if entry["tier"] > 0 else "○"
 		pip_label.modulate = _tier_color(entry["tier"], entry["max_tier"])
 		pip_label.custom_minimum_size = Vector2(14, 0)
+		pip_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(pip_label)
 
 		# Name + count
@@ -57,9 +66,33 @@ func _rebuild_list() -> void:
 		name_label.add_theme_font_size_override("font_size", 11)
 		name_label.text = "%s (%d)" % [entry["display_name"], entry["count"]]
 		name_label.modulate = _tier_color(entry["tier"], entry["max_tier"])
+		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(name_label)
 
-		_vbox.add_child(row)
+		wrapper.add_child(row)
+
+		# Hover → show trait tooltip; leave → hide it.
+		var tid: String = entry["trait_id"]
+		var count: int  = entry["count"]
+		var tier: int   = entry["tier"]
+		wrapper.mouse_entered.connect(func():
+			var tdata: TraitData = DataLoader.traits.get(tid, null)
+			if tdata != null:
+				SignalBus.show_trait_tooltip.emit(tdata, count, tier)
+		)
+		wrapper.mouse_exited.connect(func():
+			SignalBus.hide_trait_tooltip.emit()
+		)
+		wrapper.gui_input.connect(func(event: InputEvent):
+			if event is InputEventMouseButton:
+				var mb := event as InputEventMouseButton
+				if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
+					var reopened := AdvisorManager.reopen_offer_for_trait(GameState.local_player_id, tid)
+					if not reopened:
+						SignalBus.show_message.emit("No pending advisor offer for this synergy.", 1.3)
+		)
+
+		_vbox.add_child(wrapper)
 
 func _tier_color(tier: int, max_tier: int) -> Color:
 	if tier <= 0:

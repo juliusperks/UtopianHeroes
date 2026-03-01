@@ -43,6 +43,11 @@ var _revive_hp: float = 0.0
 var _has_revived: bool = false
 var mr_shred_flat: float = 0.0
 
+# Synergy / advisor bonus stats (reset each battle)
+var _dodge_pct: float = 0.0
+var _heal_on_kill_amt: float = 0.0
+var _ability_dmg_synergy_pct: float = 0.0
+
 # Trait / item buff stacks (e.g. rageblade)
 var _rage_stacks: int = 0
 
@@ -80,7 +85,7 @@ func _build_visuals() -> void:
 	add_child(collision)
 
 	_sprite = Sprite2D.new()
-	_sprite.scale = Vector2(0.4, 0.4)
+	_sprite.scale = Vector2(0.32, 0.32)
 	add_child(_sprite)
 
 	# Procedural hex portrait — visible by default, hidden once a real sprite loads
@@ -191,8 +196,16 @@ func setup_combat_stats(synergy_bonuses: Dictionary) -> void:
 	mana_max       = unit_data.ability_mana_cost
 	current_mana   = synergy_bonuses.get("mana_flat", 0)
 
-	# Apply items
+	# Apply items (sets _lifesteal_ratio, _revive_hp from item effects)
+	_lifesteal_ratio = 0.0
+	_revive_hp = 0.0
 	_apply_item_bonuses(instance_data.get("items", []))
+
+	# Synergy / advisor bonuses layered on top of item effects
+	_lifesteal_ratio   += float(synergy_bonuses.get("lifesteal_pct", 0)) / 100.0
+	_dodge_pct          = float(synergy_bonuses.get("dodge_pct", 0))
+	_heal_on_kill_amt   = float(synergy_bonuses.get("heal_on_kill", 0))
+	_ability_dmg_synergy_pct = float(synergy_bonuses.get("ability_dmg_pct", 0))
 
 	_atk_cooldown = 0.0
 	is_alive = true
@@ -258,11 +271,25 @@ func battle_tick(delta: float, allies: Array, enemies: Array) -> void:
 	if current_mana >= mana_max and _ability != null:
 		current_mana = 0
 		_ability.execute(allies, enemies)
+		_flash_cast()
 		_update_bars()
 
 func _do_attack(target: Node) -> void:
-	var final_dmg := DamageCalculator.physical(current_atk, target.current_armor)
-	target.take_damage(final_dmg, true)
+	var final_dmg: float
+	if unit_data != null and unit_data.magic_attacker:
+		final_dmg = DamageCalculator.magic(current_atk, target.current_mr - mr_shred_flat)
+		target.take_damage(final_dmg, false)
+	else:
+		final_dmg = DamageCalculator.physical(current_atk, target.current_armor)
+		target.take_damage(final_dmg, true)
+
+	# Lifesteal
+	if _lifesteal_ratio > 0.0:
+		receive_heal(final_dmg * _lifesteal_ratio)
+
+	# Heal on kill
+	if _heal_on_kill_amt > 0.0 and is_instance_valid(target) and not target.is_alive:
+		receive_heal(_heal_on_kill_amt)
 
 	# Mana gain on attack
 	current_mana += 10
@@ -280,8 +307,12 @@ func _do_attack(target: Node) -> void:
 func take_damage(amount: float, is_physical: bool) -> void:
 	if not is_alive:
 		return
+	# Dodge check
+	if _dodge_pct > 0.0 and randf() * 100.0 < _dodge_pct:
+		_show_floating_text("Dodge!", Color(0.4, 1.0, 1.0))
+		return
 	current_hp -= amount
-	# Lifesteal: the attacker heals (handled by the attacker calling this)
+	_show_damage_number(amount, is_physical)
 	if current_hp <= 0.0:
 		_on_death()
 	_update_bars()
@@ -294,8 +325,8 @@ func apply_buff(effect_id: String, value: float, duration: float) -> void:
 	_status_effects.apply(effect_id, value, duration)
 
 func get_ability_dmg_bonus() -> float:
-	# Returns total ability damage % bonus from items (trait bonuses applied in setup_combat_stats)
-	var bonus := 0.0
+	# Includes synergy/advisor pct + item pct
+	var bonus := _ability_dmg_synergy_pct
 	for item_id in instance_data.get("items", []):
 		var item: ItemData = DataLoader.items.get(item_id, null)
 		if item != null:
@@ -330,6 +361,42 @@ func _update_bars() -> void:
 		_hp_bar.modulate = Color.YELLOW
 	else:
 		_hp_bar.modulate = Color.RED
+
+func _flash_cast() -> void:
+	# Bright purple-white burst when a spell fires, fades back over 0.4s
+	var tween := create_tween()
+	tween.tween_property(self, "modulate", Color(2.0, 1.6, 3.0), 0.06)
+	tween.tween_property(self, "modulate", Color.WHITE, 0.38)
+
+func _show_damage_number(amount: float, is_physical: bool) -> void:
+	var lbl := Label.new()
+	lbl.text = "-%d" % int(amount)
+	lbl.add_theme_font_size_override("font_size", 13)
+	lbl.add_theme_constant_override("outline_size", 2)
+	lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	lbl.modulate = Color(1.0, 0.35, 0.35) if is_physical else Color(0.45, 0.65, 1.0)
+	lbl.position = Vector2(randf_range(-12.0, 12.0), -48.0)
+	lbl.z_index = 20
+	add_child(lbl)
+	var tween := lbl.create_tween()
+	tween.tween_property(lbl, "position", lbl.position + Vector2(randf_range(-8.0, 8.0), -32.0), 0.85)
+	tween.parallel().tween_property(lbl, "modulate:a", 0.0, 0.85)
+	tween.tween_callback(lbl.queue_free)
+
+func _show_floating_text(text: String, color: Color) -> void:
+	var lbl := Label.new()
+	lbl.text = text
+	lbl.add_theme_font_size_override("font_size", 11)
+	lbl.add_theme_constant_override("outline_size", 2)
+	lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	lbl.modulate = color
+	lbl.position = Vector2(-18.0, -48.0)
+	lbl.z_index = 20
+	add_child(lbl)
+	var tween := lbl.create_tween()
+	tween.tween_property(lbl, "position", lbl.position + Vector2(0.0, -24.0), 0.75)
+	tween.parallel().tween_property(lbl, "modulate:a", 0.0, 0.75)
+	tween.tween_callback(lbl.queue_free)
 
 func _star_text(s: int) -> String:
 	match s:
