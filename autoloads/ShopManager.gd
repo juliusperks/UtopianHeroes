@@ -18,6 +18,11 @@ func refresh_shop(player_id: int, return_old: bool = true) -> void:
 	if ps == null:
 		return
 
+	# Shop is locked — preserve current slots, just update UI.
+	if ps.shop_locked:
+		SignalBus.shop_refreshed.emit(player_id)
+		return
+
 	# Return existing non-empty, non-locked slots back to pool
 	if return_old:
 		for slot_id in ps.shop_slots:
@@ -36,8 +41,10 @@ func buy_unit(player_id: int, slot_index: int) -> bool:
 	if slot_index < 0 or slot_index >= ps.shop_slots.size():
 		return false
 
-	var unit_id: String = ps.shop_slots[slot_index]
-	if unit_id == "" or unit_id.begins_with("LOCKED:"):
+	var raw_id: String = ps.shop_slots[slot_index]
+	# Strip the LOCKED: marker — units in a locked shop are still purchasable.
+	var unit_id: String = raw_id.substr(7) if raw_id.begins_with("LOCKED:") else raw_id
+	if unit_id == "":
 		return false
 
 	var cost: int = DataLoader.units[unit_id].cost
@@ -134,17 +141,15 @@ func lock_shop(player_id: int) -> void:
 	var ps := GameState.get_player(player_id)
 	if ps == null:
 		return
-	for i in ps.shop_slots.size():
-		if ps.shop_slots[i] != "":
-			ps.shop_slots[i] = "LOCKED:" + ps.shop_slots[i]
+	ps.shop_locked = true
+	SignalBus.shop_refreshed.emit(player_id)
 
 func unlock_shop(player_id: int) -> void:
 	var ps := GameState.get_player(player_id)
 	if ps == null:
 		return
-	for i in ps.shop_slots.size():
-		if ps.shop_slots[i].begins_with("LOCKED:"):
-			ps.shop_slots[i] = ps.shop_slots[i].substr(7)
+	ps.shop_locked = false
+	SignalBus.shop_refreshed.emit(player_id)
 
 # ── Internal helpers ──────────────────────────────────────────────────────────
 

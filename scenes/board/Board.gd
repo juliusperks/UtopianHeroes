@@ -20,6 +20,10 @@ var bench_slots: Array = []      # Array[BenchSlot] — 9 slots
 var board_units: Dictionary = {} # Vector2i -> Unit node
 var bench_units: Array = []      # Array[Unit or null], length = max_bench
 
+# Monotonic counter: every time a unit is placed on the board it gets the next
+# number. Most-recently-placed = highest number = treated as mercenary first.
+var _placement_counter: int = 0
+
 # Drag state
 var _dragged_unit: Node = null        # Unit node being dragged
 var _drag_source_board: Variant = null  # Vector2i if from board, null if from bench
@@ -67,6 +71,7 @@ func _connect_signals() -> void:
 	SignalBus.unit_upgraded.connect(_on_unit_upgraded)
 	SignalBus.synergies_updated.connect(_on_synergies_updated)
 	SignalBus.phase_changed.connect(_on_phase_changed)
+	SignalBus.player_leveled_up.connect(_on_player_leveled_up)
 
 # ── Hex coordinate math ───────────────────────────────────────────────────────
 
@@ -189,6 +194,7 @@ func _start_drag_from_board(coord: Vector2i) -> void:
 	hex_cells[coord].mark_occupied(false)
 	GameState.get_player(GameState.local_player_id).board.erase(coord)
 	SynergyManager.recalculate(GameState.local_player_id)
+	_refresh_overdraft_visuals()
 
 func _start_drag_from_bench(slot_idx: int) -> void:
 	if not RoundManager.is_prep():
@@ -206,10 +212,11 @@ func _finish_drop(target_coord: Vector2i) -> void:
 		_cancel_drag()
 		return
 
-	# Check board size limit
+	# Check board size limit (overdraft = extra mercenary slots, lost after battle)
 	var max_board := EconomyManager.max_board_size(GameState.local_player_id)
-	if not board_units.has(target_coord) and board_units.size() >= max_board:
-		SignalBus.show_message.emit("Board full! Level up to place more units.", 2.0)
+	var hard_cap  := max_board + EconomyManager.overdraft_limit(GameState.local_player_id)
+	if not board_units.has(target_coord) and board_units.size() >= hard_cap:
+		SignalBus.show_message.emit("Board full! (max %d + %d mercenaries)" % [max_board, hard_cap - max_board], 2.0)
 		_cancel_drag()
 		return
 
@@ -266,11 +273,14 @@ func _place_unit_on_board(unit_node: Node, coord: Vector2i) -> void:
 	board_units[coord] = unit_node
 	hex_cells[coord].mark_occupied(true)
 
-	# Sync to GameState
+	# Sync to GameState — stamp with placement order so overdraft sort is stable.
 	var ps := GameState.local_player()
+	_placement_counter += 1
 	ps.board[coord] = unit_node.instance_data.duplicate()
+	ps.board[coord]["placed_order"] = _placement_counter
 	SynergyManager.recalculate(GameState.local_player_id)
 	SignalBus.unit_placed_on_board.emit(GameState.local_player_id, unit_node.instance_id, coord)
+	_refresh_overdraft_visuals()
 
 func _place_unit_on_bench(unit_node: Node, slot_idx: int) -> void:
 	unit_node.z_index = 1
@@ -330,6 +340,7 @@ func populate_from_state() -> void:
 		unit_node.position = bench_slots[i].position
 		bench_slots[i].mark_occupied(true)
 		add_child(unit_node)
+	_refresh_overdraft_visuals()
 
 func _spawn_unit_node(instance_data: Dictionary) -> Node:
 	var unit_node: Node = UnitScene.instantiate()
@@ -366,6 +377,7 @@ func _on_unit_removed_from_board(player_id: int, instance_id: String) -> void:
 			board_units.erase(coord)
 			hex_cells[coord].mark_occupied(false)
 			unit_node.queue_free()
+			_refresh_overdraft_visuals()
 			return
 
 func _on_unit_placed_on_bench(player_id: int, _instance_id: String) -> void:
@@ -379,8 +391,40 @@ func _on_unit_upgraded(player_id: int, _unit_id: String, _new_star: int) -> void
 func _on_synergies_updated(player_id: int, _bonuses: Dictionary) -> void:
 	pass  # SynergyPanel handles this
 
+func _on_player_leveled_up(player_id: int, _new_level: int) -> void:
+	if player_id == GameState.local_player_id:
+		_refresh_overdraft_visuals()
+
 func _on_phase_changed(phase: int) -> void:
 	# During combat, disable board interaction
 	var is_combat_phase := (phase == RoundManager.Phase.COMBAT)
 	for cell in hex_cells.values():
 		cell.input_pickable = not is_combat_phase
+
+# ── Overdraft visuals ─────────────────────────────────────────────────────────
+
+## Tints frontline units red when more units are on the board than the player's level allows.
+## Units are sorted row-ascending (row 0 = closest to enemy = mercenaries), then col-ascending.
+## The first `overdraft_count` units in that order get the reddish mercenary tint.
+func _refresh_overdraft_visuals() -> void:
+	var max_board := EconomyManager.max_board_size(GameState.local_player_id)
+	var overdraft_count := maxi(0, board_units.size() - max_board)
+	var ps := GameState.local_player()
+
+	# Sort by placed_order DESCENDING — most-recently-placed units are the mercs.
+	# This creates the "rush to field the mercenary" feel: the last unit you drag
+	# onto the board is always the one glowing red.
+	var coords := board_units.keys()
+	coords.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		var oa: int = ps.board.get(a, {}).get("placed_order", 0)
+		var ob: int = ps.board.get(b, {}).get("placed_order", 0)
+		return oa > ob  # descending: highest = most recent = merc first
+	)
+
+	for i in coords.size():
+		var unit_node: Node = board_units[coords[i]]
+		var is_od: bool = (i < overdraft_count)
+		unit_node.modulate = Color(1.6, 0.35, 0.35) if is_od else Color.WHITE
+		# Keep GameState in sync so BattleArena can identify mercs.
+		if ps.board.has(coords[i]):
+			ps.board[coords[i]]["overdraft"] = is_od

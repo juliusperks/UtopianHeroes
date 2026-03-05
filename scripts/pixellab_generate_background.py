@@ -29,7 +29,8 @@ THEMES = {
         "dark readable center area for gameplay overlays, no characters, no text, no watermark"
     ),
     "war_camp": (
-        "pixel-art medieval war camp background, banners, distant fires, moody blue night lighting, "
+        "pixel-art medieval war camp background, banners, distant fires, "
+        "moody blue night lighting, "
         "clean composition for tactical UI overlays, no characters, no text, no watermark"
     ),
     "battlefield_topdown": (
@@ -47,8 +48,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--model", choices=["pixflux", "bitforge"], default="pixflux")
     p.add_argument("--width", type=int, default=400, help="Generation width (API max 400)")
     p.add_argument("--height", type=int, default=225, help="Generation height (API max 400)")
-    p.add_argument("--target-width", type=int, default=1280, help="Final output width after upscale")
-    p.add_argument("--target-height", type=int, default=720, help="Final output height after upscale")
+    p.add_argument(
+        "--target-width", type=int, default=1280, help="Final output width after upscale"
+    )
+    p.add_argument(
+        "--target-height", type=int, default=720, help="Final output height after upscale"
+    )
     p.add_argument("--out", default=str(OUT_DEFAULT))
     p.add_argument("--seed", type=int, default=0)
     return p.parse_args()

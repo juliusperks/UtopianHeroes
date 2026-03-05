@@ -16,13 +16,28 @@ func grant_round_income(player_id: int) -> void:
 	var rate: float       = float(eco.get("interest_rate", 0.1))
 	var max_int: int      = eco.get("max_interest", 5)
 
-	var interest: int     = mini(int(float(ps.gold) * rate), max_int)
+	# Underdraft bonus: ceil interest when fielding fewer units than level allows.
+	var max_board: int    = max_board_size(player_id)
+	var fielded: int      = ps.board.size()
+	var raw_interest: float = float(ps.gold) * rate
+	var interest: int
+	if fielded < max_board:
+		interest = mini(ceili(raw_interest), max_int)
+	else:
+		interest = mini(int(raw_interest), max_int)
+
 	var streak_bonus: int = _get_streak_bonus(ps)
 
 	# Trait bonus: Merchant "gold_per_round"
 	var trait_bonus: int  = SynergyManager.get_bonus_value(player_id, "gold_per_round", 0)
 
 	var total: int = base + interest + streak_bonus + trait_bonus
+
+	# Mercenary penalty: fielding more than 2 overdraft units costs -2 interest next round.
+	if ps.mercs_last_battle > 2:
+		total = maxi(0, total - 2)
+	ps.mercs_last_battle = 0
+
 	ps.gold += total
 
 	SignalBus.gold_changed.emit(player_id, ps.gold)
@@ -103,6 +118,14 @@ func max_board_size(player_id: int) -> int:
 	if idx < 0 or idx >= table.size():
 		return ps.level
 	return int(table[idx])
+
+## How many extra (overdraft) units a player may field beyond their normal cap.
+## = min( ceil(max_board * overdraft_pct), overdraft_cap )
+func overdraft_limit(player_id: int) -> int:
+	var eco := DataLoader.economy
+	var pct: float = float(eco.get("overdraft_pct", 0.4))
+	var cap: int   = int(eco.get("overdraft_cap", 4))
+	return mini(ceili(float(max_board_size(player_id)) * pct), cap)
 
 # ── Damage ────────────────────────────────────────────────────────────────────
 

@@ -7,6 +7,7 @@ const ShopSlotScene := preload("res://scenes/shop/ShopSlot.tscn")
 var _slot_nodes: Array = []   # Array[ShopSlot]
 var _reroll_btn: Button
 var _xp_btn: Button
+var _lock_btn: Button
 var _gold_label: Label
 var _level_label: Label
 
@@ -66,6 +67,14 @@ func _build_ui() -> void:
 	_style_action_button(_xp_btn, Color(0.62, 0.36, 0.02))
 	btn_row.add_child(_xp_btn)
 
+	_lock_btn = Button.new()
+	_lock_btn.text = "Lock"
+	_lock_btn.add_theme_font_size_override("font_size", 14)
+	_lock_btn.custom_minimum_size = Vector2(80, 34)
+	_lock_btn.pressed.connect(_on_toggle_lock)
+	_style_action_button(_lock_btn, Color(0.28, 0.28, 0.28))
+	btn_row.add_child(_lock_btn)
+
 	_gold_label = Label.new()
 	_gold_label.add_theme_font_size_override("font_size", 14)
 	_gold_label.modulate = Color.GOLD
@@ -102,6 +111,14 @@ func _refresh() -> void:
 	_reroll_btn.disabled = not can_reroll
 	_xp_btn.disabled = ps.level >= max_level or ps.gold < DataLoader.economy.get("xp_buy_cost", 4)
 
+	# Lock button — text and tint reflect current state
+	if ps.shop_locked:
+		_lock_btn.text = "Unlock"
+		_style_action_button(_lock_btn, Color(0.70, 0.50, 0.06))  # amber when locked
+	else:
+		_lock_btn.text = "Lock"
+		_style_action_button(_lock_btn, Color(0.28, 0.28, 0.28))  # grey when unlocked
+
 func _get_unit_cost(unit_id: String) -> int:
 	var eid := unit_id.substr(7) if unit_id.begins_with("LOCKED:") else unit_id
 	if eid == "" or not DataLoader.units.has(eid):
@@ -137,6 +154,15 @@ func _on_gold_changed(player_id: int, _amount: int) -> void:
 func _on_player_leveled_up(player_id: int, _level: int) -> void:
 	if player_id == GameState.local_player_id:
 		_refresh()
+
+func _on_toggle_lock() -> void:
+	var ps := GameState.local_player()
+	if ps == null:
+		return
+	if ps.shop_locked:
+		ShopManager.unlock_shop(GameState.local_player_id)
+	else:
+		ShopManager.lock_shop(GameState.local_player_id)
 
 func _style_action_button(btn: Button, base: Color) -> void:
 	var normal := StyleBoxFlat.new()

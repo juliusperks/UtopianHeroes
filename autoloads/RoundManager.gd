@@ -11,8 +11,10 @@ enum Phase {
 	GAME_OVER = 5
 }
 
-const PREP_DURATION    := 30.0
-const RESULTS_DURATION := 4.0
+const PREP_DURATION_BASE := 5.0
+const PREP_DURATION_STEP := 2.0
+const PREP_DURATION_MAX  := 30.0
+const RESULTS_DURATION   := 4.0
 const BOARD_ROWS       := 4
 const BOARD_COLS       := 7
 
@@ -71,9 +73,10 @@ func _enter_phase(phase: Phase) -> void:
 			# AI players take their turn
 			AIDirector.do_prep_phase()
 
-			# Start countdown
-			prep_time_remaining = PREP_DURATION
-			_phase_timer.start(PREP_DURATION)
+			# Start countdown — ramps from 5s (R1) by +2s/round, capped at 30s
+			var prep_dur := minf(PREP_DURATION_MAX, PREP_DURATION_BASE + PREP_DURATION_STEP * float(GameState.current_round - 1))
+			prep_time_remaining = prep_dur
+			_phase_timer.start(prep_dur)
 
 		Phase.CAROUSEL:
 			_run_carousel_round()

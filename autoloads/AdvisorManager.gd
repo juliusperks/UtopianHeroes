@@ -11,6 +11,9 @@ var _advisor_pool: Dictionary = {}
 # Pending offers per player and trait:
 # { player_id: { trait_id: Array[advisor_dict] } }
 var _pending_offers: Dictionary = {}
+# Unlocked advisor slots by trait tier reached:
+# { player_id: { trait_id: max_tier_reached_int } }
+var _unlocked_slots: Dictionary = {}
 
 # Track advisors already owned per player to avoid duplicate offers
 # (we allow duplicates for now — buying the same advisor stacks the bonus)
@@ -18,6 +21,11 @@ var _pending_offers: Dictionary = {}
 func _ready() -> void:
 	_load_advisors()
 	SignalBus.synergy_tier_reached.connect(_on_tier_reached)
+
+## Clear run-scoped advisor state (call on new game start).
+func reset_for_new_game() -> void:
+	_pending_offers.clear()
+	_unlocked_slots.clear()
 
 func _load_advisors() -> void:
 	var path := "res://data/advisors.json"
@@ -38,6 +46,12 @@ func _on_tier_reached(player_id: int, trait_id: String, _tier: int) -> void:
 	# Only show offers to the local human player during prep phase
 	if player_id != GameState.local_player_id:
 		return
+	if not _unlocked_slots.has(player_id):
+		_unlocked_slots[player_id] = {}
+	var per_player_slots: Dictionary = _unlocked_slots[player_id]
+	per_player_slots[trait_id] = maxi(int(per_player_slots.get(trait_id, 0)), int(_tier))
+	_unlocked_slots[player_id] = per_player_slots
+
 	var pool: Array = _advisor_pool.get(trait_id, [])
 	if pool.is_empty():
 		return
@@ -76,6 +90,20 @@ func purchase(advisor_id: String) -> bool:
 	var advisor := _find_advisor(advisor_id)
 	if advisor.is_empty():
 		push_error("[AdvisorManager] Unknown advisor id: %s" % advisor_id)
+		return false
+	var trait_id := _find_trait_for_advisor(advisor_id)
+	if trait_id == "":
+		push_error("[AdvisorManager] Could not resolve trait for advisor id: %s" % advisor_id)
+		return false
+	var max_slots := get_unlocked_slots(GameState.local_player_id, trait_id)
+	var owned_slots := get_owned_count_for_trait(GameState.local_player_id, trait_id)
+	if owned_slots >= max_slots:
+		var tdata: TraitData = DataLoader.traits.get(trait_id, null)
+		var trait_name := tdata.display_name if tdata != null else trait_id.capitalize()
+		SignalBus.show_message.emit(
+			"%s advisor slots full (%d/%d). Reach the next tier for another." % [trait_name, owned_slots, max_slots],
+			2.2
+		)
 		return false
 	var cost: int = int(advisor.get("cost", 3))
 	if ps.gold < cost:
@@ -123,6 +151,20 @@ func get_bonuses(player_id: int) -> Dictionary:
 ## Returns the def dict for a single advisor id, searching all pools.
 func get_advisor_def(advisor_id: String) -> Dictionary:
 	return _find_advisor(advisor_id)
+
+func get_unlocked_slots(player_id: int, trait_id: String) -> int:
+	var per_player: Dictionary = _unlocked_slots.get(player_id, {})
+	return int(per_player.get(trait_id, 0))
+
+func get_owned_count_for_trait(player_id: int, trait_id: String) -> int:
+	var ps := GameState.get_player(player_id)
+	if ps == null:
+		return 0
+	var count := 0
+	for advisor_id in ps.advisors:
+		if _find_trait_for_advisor(advisor_id) == trait_id:
+			count += 1
+	return count
 
 func _find_advisor(advisor_id: String) -> Dictionary:
 	for trait_id in _advisor_pool:

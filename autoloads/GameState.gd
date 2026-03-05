@@ -18,6 +18,15 @@ var current_phase: int = 0   # mirrors RoundManager.Phase
 # The shared unit pool: unit_id -> count remaining in pool
 var unit_pool: Dictionary = {}
 
+## Full combat log — one entry per battle, every round.
+## Each entry: { round, player_id, opponent_id, winner_id, loser_id, damage, overtime: bool }
+## Query via helpers below: get_combat_history(), get_wins_vs(), get_overtime_count().
+var combat_log: Array = []
+
+## Convenience alias — overtime-only subset of combat_log.
+## Kept separate so UI/advisors can reference it without filtering.
+var overtime_log: Array = []
+
 # All 8 players' states (0 = local human, 1-7 = AI in single-player)
 var players: Array = []   # Array[PlayerState]
 
@@ -49,6 +58,13 @@ class PlayerState:
 
 	# Purchased advisors (persist for the whole game)
 	var advisors: Array = []       # Array[String] advisor_ids
+
+	# Shop lock — when true the shop is not refreshed at round start
+	var shop_locked: bool = false
+
+	# Tracks how many overdraft (merc) units were dismissed last battle
+	# EconomyManager reads this at income time then resets it to 0
+	var mercs_last_battle: int = 0
 
 	# Temporary per-round bonuses (from trait effects like Merchant gold_per_win)
 	var pending_win_gold: int = 0
@@ -82,7 +98,11 @@ func _ready() -> void:
 	pass  # Players are set up when a game starts via init_game()
 
 func init_game(ai_count: int = 7) -> void:
+	if AdvisorManager != null:
+		AdvisorManager.reset_for_new_game()
 	players.clear()
+	combat_log.clear()
+	overtime_log.clear()
 	for i in PLAYER_COUNT:
 		var ps := PlayerState.new()
 		ps.player_id = i
@@ -213,6 +233,31 @@ func serialize() -> Dictionary:
 			"item_inventory": ps.item_inventory.duplicate()
 		})
 	return out
+
+# ── Combat history queries ────────────────────────────────────────────────────
+# All helpers treat (a vs b) and (b vs a) as the same matchup unless noted.
+
+## All combat entries involving both player_a and player_b.
+func get_combat_history(player_a: int, player_b: int) -> Array:
+	return combat_log.filter(func(r): return \
+		(r["player_id"] == player_a and r["opponent_id"] == player_b) or \
+		(r["player_id"] == player_b and r["opponent_id"] == player_a))
+
+## Number of times player_a beat player_b.
+func get_wins_vs(player_a: int, player_b: int) -> int:
+	return get_combat_history(player_a, player_b).filter(
+		func(r): return r["winner_id"] == player_a).size()
+
+## Number of times these two players went to overtime.
+func get_overtime_count(player_a: int, player_b: int) -> int:
+	return get_combat_history(player_a, player_b).filter(
+		func(r): return r["overtime"]).size()
+
+## Total overtimes the local player has been involved in this game.
+func local_overtime_count() -> int:
+	return combat_log.filter(func(r): return \
+		r["overtime"] and \
+		(r["player_id"] == local_player_id or r["opponent_id"] == local_player_id)).size()
 
 func _serialize_board(board: Dictionary) -> Array:
 	var arr := []

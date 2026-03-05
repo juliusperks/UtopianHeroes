@@ -33,6 +33,10 @@ signal synergies_updated(player_id: int, active_bonuses: Dictionary)
 signal combat_started(player_id: int, opponent_id: int)
 signal combat_ended(winner_player_id: int, loser_player_id: int, damage: int)
 signal unit_died(unit_instance_id: String, team: int)
+## Fired when a battle exceeds the overtime threshold. Carries a full context
+## record so synergies, advisors, and UI can react and reference it later.
+## record = { "round", "player_id", "opponent_id", "winner_id", "loser_id", "damage" }
+signal combat_overtime(record: Dictionary)
 
 # --- Players ---
 signal hp_changed(player_id: int, new_hp: int)

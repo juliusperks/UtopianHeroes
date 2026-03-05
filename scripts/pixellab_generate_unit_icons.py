@@ -95,7 +95,9 @@ def prompt_for(unit: dict) -> str:
     )
 
 
-def generate_one(client: pixellab.Client, unit: dict, model: str, size: int, out_path: Path) -> None:
+def generate_one(
+    client: pixellab.Client, unit: dict, model: str, size: int, out_path: Path
+) -> None:
     desc = prompt_for(unit)
     seed = stable_seed(unit.get("id", "unit"))
 
