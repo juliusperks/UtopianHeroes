@@ -10,10 +10,13 @@ const PlayerListScene := preload("res://scenes/ui/PlayerList.tscn")
 const UnitInfoPopupScene := preload("res://scenes/ui/UnitInfoPopup.tscn")
 const RoundResultBannerScene := preload("res://scenes/ui/RoundResultBanner.tscn")
 const MAIN_BG_PATH := "res://assets/art/backgrounds/battlefield_bg.png"
-const MAIN_BG_SCALE := Vector2(0.46, 0.46)
-# World-space center of the 7×4 hex grid:
+const MAIN_BG_SCALE  := Vector2(0.43, 0.43)
+# World-space center of the 7×4 hex grid (world-local, independent of world scale):
 #   board offset (-240,-280) + grid half-size (240, 96) = (0, -184)
 const MAIN_BG_OFFSET := Vector2(0.0, -184.0)
+# Scales the board + battle arena 40% larger on the 1920×1080 canvas.
+# CanvasLayer nodes (shop, HUD, synergy, player list) are unaffected by this scale.
+const WORLD_SCALE    := Vector2(1.4, 1.4)
 
 var _board: Node
 var _battle_arena: Node
@@ -29,15 +32,25 @@ func _ready() -> void:
 	_start_game()
 
 func _build_scene() -> void:
+	var vp := get_viewport().get_visible_rect().size
+	var vw := vp.x
+	var vh := vp.y
+
 	# Base fallback backdrop behind the world.
 	var bg := ColorRect.new()
 	bg.color = Color(0.08, 0.1, 0.14)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
 
-	# Game world node (2D space for board + battle)
+	# Game world node — centred horizontally, shifted up vertically so the
+	# board+bench occupies the upper ~56% of the screen and the shop panel
+	# sits permanently in the lower ~30%.
+	# Math: board top = world_y + (-312)*scale ≥ HUD_h (68px)
+	#       bench bottom = world_y + 60*scale ≤ shop_y (vh*0.565)
+	#       → world_y ≈ vh*0.475 centres the play area in the available zone.
 	var world := Node2D.new()
-	world.position = Vector2(640, 360)  # center of 1280x720
+	world.position = Vector2(vw * 0.5, vh * 0.475)
+	world.scale    = WORLD_SCALE
 	add_child(world)
 
 	# Battlefield art is positioned in world space so it aligns with board coordinates.
@@ -49,9 +62,9 @@ func _build_scene() -> void:
 		bg_sprite.scale = MAIN_BG_SCALE
 		world.add_child(bg_sprite)
 
-	# Board — offset to center the 7×4 grid on screen (world origin is at 640, 360)
-	# Board bounding box: x≈0..481, y≈0..224; bench adds y up to ~376
-	# This places board top-left at screen (400, 80), bench bottom at ~(400, 456)
+	# Board — offset centres the 7×4 grid around world origin.
+	# The exact pixel offsets preserve hex alignment regardless of viewport size
+	# because the board lives in world space (scaled by WORLD_SCALE).
 	_board = BoardScene.instantiate()
 	_board.position = Vector2(-240.0, -280.0)
 	world.add_child(_board)
@@ -80,26 +93,26 @@ func _build_scene() -> void:
 	var advisor_popup: Node = load("res://scenes/ui/AdvisorOfferPopup.gd").new()
 	popup_layer.add_child(advisor_popup)
 
-	# Shop panel — bottom of screen
-	# ShopSlot min size is 110×150; 5 slots + padding ≈ 590×218px total panel size.
-	# Placed at absolute y=495 so it fits within the 720px viewport (ends ~y=713).
+	# Shop panel — permanent bottom bar, always visible.
+	# Bench bottom lands at roughly vh*0.555; shop starts 8px below that.
 	var shop_layer := CanvasLayer.new()
 	add_child(shop_layer)
 	_shop_panel = ShopPanelScene.instantiate()
-	_shop_panel.position = Vector2(0, 495)
+	_shop_panel.position = Vector2(vw * 0.297, vh * 0.565)
 	shop_layer.add_child(_shop_panel)
 
-	# Synergy panel — left side
+	# Synergy panel — left side, below HUD bar (HUD bar ≈ vh*0.063)
 	var ui_layer := CanvasLayer.new()
 	add_child(ui_layer)
 	_synergy_panel = SynergyPanelScene.instantiate()
-	_synergy_panel.position = Vector2(4, 50)
+	_synergy_panel.position = Vector2(4, vh * 0.067)
 	ui_layer.add_child(_synergy_panel)
 
-	# Player list — right side
+	# Player list — right side, below HUD bar.
+	# Position x = vw - panel_min_width - 4px margin so it hugs the right edge.
+	var pl_w := int(vw * 0.109) + 4   # panel min width + margin
 	_player_list = PlayerListScene.instantiate()
-	_player_list.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	_player_list.position = Vector2(1120, 50)
+	_player_list.position = Vector2(vw - pl_w, vh * 0.067)
 	ui_layer.add_child(_player_list)
 
 	# Listen for phase changes to swap board / arena visibility
@@ -110,21 +123,16 @@ func _start_game() -> void:
 	RoundManager.start_game()
 
 func _on_phase_changed(phase: int) -> void:
+	# Shop + bench are always visible — players plan next round during combat.
+	# Board manages its own hex/unit visibility internally via _set_board_visible().
 	match phase:
-		RoundManager.Phase.PREP:
-			_board.visible = true
-			_battle_arena.visible = false
-			_shop_panel.visible = true
 		RoundManager.Phase.COMBAT:
-			_board.visible = false
 			_battle_arena.visible = true
-			_shop_panel.visible = false
-		RoundManager.Phase.RESULTS:
-			_board.visible = true
+		RoundManager.Phase.PREP, RoundManager.Phase.RESULTS:
+			_battle_arena.visible = false
+		RoundManager.Phase.GAME_OVER:
 			_battle_arena.visible = false
 			_shop_panel.visible = false
-		RoundManager.Phase.GAME_OVER:
-			pass
 
 func _on_game_over(winner_id: int) -> void:
 	var msg := "You Win! 🎉" if winner_id == GameState.local_player_id else "Game Over!"

@@ -24,6 +24,8 @@ var bench_units: Array = []      # Array[Unit or null], length = max_bench
 # number. Most-recently-placed = highest number = treated as mercenary first.
 var _placement_counter: int = 0
 
+var _auto_deploy_btn: Button
+
 # Drag state
 var _dragged_unit: Node = null        # Unit node being dragged
 var _drag_source_board: Variant = null  # Vector2i if from board, null if from bench
@@ -63,6 +65,16 @@ func _build_bench() -> void:
 		add_child(slot)
 		bench_slots.append(slot)
 		bench_units.append(null)
+
+	# Auto-deploy toggle — sits to the right of the last bench slot
+	_auto_deploy_btn = Button.new()
+	_auto_deploy_btn.text = "AUTO\nDEPLOY"
+	_auto_deploy_btn.toggle_mode = true
+	_auto_deploy_btn.custom_minimum_size = Vector2(60, 52)
+	_auto_deploy_btn.position = Vector2(start_x + max_bench * 68.0 + 10.0, bench_y - 26.0)
+	_auto_deploy_btn.toggled.connect(_on_auto_deploy_toggled)
+	add_child(_auto_deploy_btn)
+	_refresh_auto_deploy_btn()
 
 func _connect_signals() -> void:
 	SignalBus.unit_placed_on_board.connect(_on_unit_placed_on_board)
@@ -195,6 +207,7 @@ func _start_drag_from_board(coord: Vector2i) -> void:
 	GameState.get_player(GameState.local_player_id).board.erase(coord)
 	SynergyManager.recalculate(GameState.local_player_id)
 	_refresh_overdraft_visuals()
+	_set_cells_drag_active(true)
 
 func _start_drag_from_bench(slot_idx: int) -> void:
 	if not RoundManager.is_prep():
@@ -206,6 +219,7 @@ func _start_drag_from_bench(slot_idx: int) -> void:
 	bench_units[slot_idx] = null
 	bench_slots[slot_idx].mark_occupied(false)
 	_sync_bench_state_from_visual()
+	_set_cells_drag_active(true)
 
 func _finish_drop(target_coord: Vector2i) -> void:
 	if not hex_cells.has(target_coord):
@@ -235,6 +249,7 @@ func _finish_drop(target_coord: Vector2i) -> void:
 	_dragged_unit = null
 	_drag_source_board = null
 	_drag_source_bench = -1
+	_set_cells_drag_active(false)
 
 func _finish_drop_to_bench(slot_idx: int) -> void:
 	if bench_units[slot_idx] != null:
@@ -249,6 +264,7 @@ func _finish_drop_to_bench(slot_idx: int) -> void:
 	_dragged_unit = null
 	_drag_source_board = null
 	_drag_source_bench = -1
+	_set_cells_drag_active(false)
 
 func _cancel_drag() -> void:
 	if _dragged_unit == null:
@@ -260,6 +276,7 @@ func _cancel_drag() -> void:
 	_dragged_unit = null
 	_drag_source_board = null
 	_drag_source_bench = -1
+	_set_cells_drag_active(false)
 
 func _process(_delta: float) -> void:
 	if _dragged_unit != null:
@@ -395,11 +412,81 @@ func _on_player_leveled_up(player_id: int, _new_level: int) -> void:
 	if player_id == GameState.local_player_id:
 		_refresh_overdraft_visuals()
 
+func _on_auto_deploy_toggled(pressed: bool) -> void:
+	var ps = GameState.local_player()
+	if ps == null:
+		return
+	ps.auto_deploy = pressed
+	_refresh_auto_deploy_btn()
+
+func _refresh_auto_deploy_btn() -> void:
+	var ps = GameState.local_player()
+	var on := false
+	if ps != null:
+		on = bool(ps.auto_deploy)
+	_auto_deploy_btn.button_pressed = on
+	_auto_deploy_btn.modulate = Color(1.0, 0.75, 0.2) if on else Color(0.55, 0.55, 0.55)
+
 func _on_phase_changed(phase: int) -> void:
-	# During combat, disable board interaction
-	var is_combat_phase := (phase == RoundManager.Phase.COMBAT)
+	if phase == RoundManager.Phase.COMBAT:
+		var ps = GameState.local_player()
+		if ps != null and ps.auto_deploy:
+			_run_auto_deploy()
+		_set_board_visible(false)   # hide grid + board units; bench stays visible
+	else:
+		_set_board_visible(true)
+
+## Show or hide only the hex grid and board units.
+## The bench slots, bench units, and auto-deploy button remain visible
+## during combat so players can plan ahead — matching TFT / Underlords feel.
+func _set_board_visible(show: bool) -> void:
 	for cell in hex_cells.values():
-		cell.input_pickable = not is_combat_phase
+		cell.visible = show
+		cell.input_pickable = show
+	for unit in board_units.values():
+		unit.visible = show
+
+func _set_cells_drag_active(active: bool) -> void:
+	for cell in hex_cells.values():
+		cell.set_drag_active(active)
+
+# ── Auto-deploy ───────────────────────────────────────────────────────────────
+
+## Fills empty board slots (up to normal max — never mercenary slots) with bench
+## units starting from the leftmost occupied bench slot, back row first.
+func _run_auto_deploy() -> void:
+	var max_board := EconomyManager.max_board_size(GameState.local_player_id)
+	var empty_slots := _empty_board_slots_back_first(max_board)
+	for coord in empty_slots:
+		# Find leftmost bench unit
+		var bench_idx := -1
+		for i in bench_units.size():
+			if bench_units[i] != null:
+				bench_idx = i
+				break
+		if bench_idx < 0:
+			break
+		var unit_node: Node = bench_units[bench_idx]
+		bench_units[bench_idx] = null
+		bench_slots[bench_idx].mark_occupied(false)
+		_place_unit_on_board(unit_node, coord)
+	_sync_bench_state_from_visual()
+
+## Returns empty board coords ordered back-to-front (row 3 first), left to right,
+## capped at however many empty slots exist up to max_board.
+func _empty_board_slots_back_first(max_board: int) -> Array:
+	var slots_needed := max_board - board_units.size()
+	if slots_needed <= 0:
+		return []
+	var empty := []
+	for row in range(ROWS - 1, -1, -1):
+		for col in COLS:
+			var coord := Vector2i(col, row)
+			if not board_units.has(coord):
+				empty.append(coord)
+				if empty.size() >= slots_needed:
+					return empty
+	return empty
 
 # ── Overdraft visuals ─────────────────────────────────────────────────────────
 

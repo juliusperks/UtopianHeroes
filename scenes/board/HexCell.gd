@@ -8,14 +8,21 @@ signal hovered(coord: Vector2i)
 signal unhovered(coord: Vector2i)
 
 const HEX_RADIUS := 36.0   # pixels, flat-top hex (circumradius)
-const HEX_COLOR_NORMAL   := Color(0.25, 0.28, 0.35, 0.8)
-const HEX_COLOR_HOVER    := Color(0.45, 0.55, 0.75, 0.9)
-const HEX_COLOR_OCCUPIED := Color(0.22, 0.25, 0.30, 0.8)
-const HEX_COLOR_INVALID  := Color(0.7, 0.2, 0.2, 0.7)
+
+# Idle (no drag): very faint so the board doesn't dominate the UI
+const HEX_COLOR_NORMAL   := Color(0.25, 0.28, 0.35, 0.10)
+const HEX_COLOR_OCCUPIED := Color(0.22, 0.25, 0.30, 0.10)
+# During drag: cells brighten so the player can see drop targets clearly
+const HEX_COLOR_DRAG     := Color(0.25, 0.28, 0.35, 0.60)
+const HEX_COLOR_OCCUPIED_DRAG := Color(0.22, 0.25, 0.30, 0.60)
+# Hover and invalid are always prominent regardless of drag state
+const HEX_COLOR_HOVER    := Color(0.45, 0.55, 0.75, 0.90)
+const HEX_COLOR_INVALID  := Color(0.70, 0.20, 0.20, 0.70)
 
 var coord: Vector2i = Vector2i.ZERO
 var is_occupied: bool = false
 var is_player_half: bool = true  # false for enemy half (shown during combat)
+var _drag_active: bool = false
 
 var _polygon: Polygon2D
 var _collision: CollisionPolygon2D
@@ -47,18 +54,28 @@ func _hex_vertices(r: float) -> PackedVector2Array:
 		pts.append(Vector2(r * cos(angle_rad), r * sin(angle_rad)))
 	return pts
 
+## Called by Board when a unit drag starts or ends — brightens all cells to 60%.
+func set_drag_active(active: bool) -> void:
+	_drag_active = active
+	_refresh_color()
+
 func set_highlight(active: bool) -> void:
-	_polygon.color = HEX_COLOR_HOVER if active else (HEX_COLOR_OCCUPIED if is_occupied else HEX_COLOR_NORMAL)
+	_polygon.color = HEX_COLOR_HOVER if active else _base_color()
 
 func set_invalid(invalid: bool) -> void:
-	if invalid:
-		_polygon.color = HEX_COLOR_INVALID
-	else:
-		_polygon.color = HEX_COLOR_NORMAL
+	_polygon.color = HEX_COLOR_INVALID if invalid else _base_color()
 
 func mark_occupied(occupied: bool) -> void:
 	is_occupied = occupied
-	_polygon.color = HEX_COLOR_OCCUPIED if occupied else HEX_COLOR_NORMAL
+	_refresh_color()
+
+func _base_color() -> Color:
+	if is_occupied:
+		return HEX_COLOR_OCCUPIED_DRAG if _drag_active else HEX_COLOR_OCCUPIED
+	return HEX_COLOR_DRAG if _drag_active else HEX_COLOR_NORMAL
+
+func _refresh_color() -> void:
+	_polygon.color = _base_color()
 
 func _on_mouse_entered() -> void:
 	if not is_occupied:
@@ -66,7 +83,7 @@ func _on_mouse_entered() -> void:
 	hovered.emit(coord)
 
 func _on_mouse_exited() -> void:
-	_polygon.color = HEX_COLOR_OCCUPIED if is_occupied else HEX_COLOR_NORMAL
+	_refresh_color()
 	unhovered.emit(coord)
 
 func _on_input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> void:

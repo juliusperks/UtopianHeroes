@@ -1,6 +1,7 @@
-res://autoloads/EconomyManager.gd
-res://autoloads/GameState.gd
-res://autoloads/ShopManager.gd
-res://scenes/battle/BattleArena.gd
-res://scenes/board/Board.gd
+res://scenes/main/Main.gd
 res://scenes/shop/ShopPanel.gd
+res://scenes/shop/ShopSlot.gd
+res://scenes/ui/HUD.gd
+res://scenes/ui/PlayerList.gd
+res://scenes/ui/SynergyPanel.gd
+res://scenes/board/Board.gd

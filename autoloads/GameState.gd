@@ -66,6 +66,9 @@ class PlayerState:
 	# EconomyManager reads this at income time then resets it to 0
 	var mercs_last_battle: int = 0
 
+	# Auto-deploy: when true, bench units fill empty board slots at combat start
+	var auto_deploy: bool = false
+
 	# Temporary per-round bonuses (from trait effects like Merchant gold_per_win)
 	var pending_win_gold: int = 0
 	var free_rerolls_remaining: int = 0

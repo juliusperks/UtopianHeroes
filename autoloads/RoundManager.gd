@@ -95,6 +95,10 @@ func _process(delta: float) -> void:
 	if current_phase == Phase.PREP:
 		prep_time_remaining -= delta
 		SignalBus.prep_timer_updated.emit(prep_time_remaining)
+		# Failsafe: if the one-shot timer callback is missed for any reason,
+		# still advance once prep countdown has elapsed.
+		if prep_time_remaining <= 0.0 and _phase_timer.is_stopped():
+			_enter_phase(Phase.COMBAT)
 
 func _on_phase_timer_timeout() -> void:
 	match current_phase:

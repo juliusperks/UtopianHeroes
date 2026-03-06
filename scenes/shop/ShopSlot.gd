@@ -1,5 +1,6 @@
 ## ShopSlot — one of 5 shop cards showing a purchasable unit.
 ## Created and managed by ShopPanel.
+## All sizes are derived from viewport dimensions at startup.
 extends PanelContainer
 
 signal purchase_requested(slot_index: int)
@@ -17,20 +18,37 @@ var _icon_bg: ColorRect
 var _icon_glyph: Label
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(110, 150)
+	var vp := get_viewport().get_visible_rect().size
+	var vw := vp.x
+	var vh := vp.y
+	custom_minimum_size = Vector2(int(vw * 0.078), int(vh * 0.194))  # 150×210 @ 1080p
 	_build_ui()
 
 func _build_ui() -> void:
+	var vp := get_viewport().get_visible_rect().size
+	var vw := vp.x
+	var vh := vp.y
+
+	var sep        := int(vh * 0.005)   # 5px
+	var icon_h     := int(vh * 0.083)   # 90px icon wrap
+	var icon_sz    := int(vh * 0.072)   # 78px icon square
+	var fnt_glyph  := int(vh * 0.037)   # 40px class glyph
+	var fnt_name   := int(vh * 0.015)   # 16px unit name
+	var fnt_trait  := int(vh * 0.012)   # 13px origin / class
+	var fnt_cost   := int(vh * 0.017)   # 18px cost
+	var btn_h      := int(vh * 0.041)   # 44px buy button
+	var fnt_btn    := int(vh * 0.015)   # 16px button label
+
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 4)
+	vbox.add_theme_constant_override("separation", sep)
 	add_child(vbox)
 
 	var icon_wrap := CenterContainer.new()
-	icon_wrap.custom_minimum_size = Vector2(0, 58)
+	icon_wrap.custom_minimum_size = Vector2(0, icon_h)
 	vbox.add_child(icon_wrap)
 
 	_icon_bg = ColorRect.new()
-	_icon_bg.custom_minimum_size = Vector2(52, 52)
+	_icon_bg.custom_minimum_size = Vector2(icon_sz, icon_sz)
 	_icon_bg.color = Color(0.2, 0.26, 0.34)
 	icon_wrap.add_child(_icon_bg)
 
@@ -38,46 +56,49 @@ func _build_ui() -> void:
 	_icon_glyph.text = "?"
 	_icon_glyph.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_icon_glyph.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_icon_glyph.size = Vector2(52, 52)
-	_icon_glyph.add_theme_font_size_override("font_size", 28)
-	_icon_glyph.add_theme_constant_override("outline_size", 2)
+	_icon_glyph.size = Vector2(icon_sz, icon_sz)
+	_icon_glyph.add_theme_font_size_override("font_size", fnt_glyph)
+	_icon_glyph.add_theme_constant_override("outline_size", 3)
 	_icon_glyph.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
 	_icon_bg.add_child(_icon_glyph)
 
 	_name_label = Label.new()
-	_name_label.add_theme_font_size_override("font_size", 12)
+	_name_label.add_theme_font_size_override("font_size", fnt_name)
+	_name_label.add_theme_constant_override("outline_size", 2)
+	_name_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_name_label.text = "—"
 	vbox.add_child(_name_label)
 
 	_origin_label = Label.new()
-	_origin_label.add_theme_font_size_override("font_size", 10)
+	_origin_label.add_theme_font_size_override("font_size", fnt_trait)
 	_origin_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_origin_label.modulate = Color(0.7, 0.9, 1.0)
 	vbox.add_child(_origin_label)
 
 	_class_label = Label.new()
-	_class_label.add_theme_font_size_override("font_size", 10)
+	_class_label.add_theme_font_size_override("font_size", fnt_trait)
 	_class_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_class_label.modulate = Color(1.0, 0.85, 0.6)
 	vbox.add_child(_class_label)
 
 	_cost_label = Label.new()
-	_cost_label.add_theme_font_size_override("font_size", 14)
+	_cost_label.add_theme_font_size_override("font_size", fnt_cost)
 	_cost_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_cost_label.modulate = Color.GOLD
 	vbox.add_child(_cost_label)
 
 	_buy_button = Button.new()
 	_buy_button.text = "Buy"
-	_buy_button.add_theme_font_size_override("font_size", 14)
-	_buy_button.custom_minimum_size = Vector2(0, 34)
+	_buy_button.add_theme_font_size_override("font_size", fnt_btn)
+	_buy_button.custom_minimum_size = Vector2(0, btn_h)
 	_buy_button.pressed.connect(func(): purchase_requested.emit(slot_index))
 	_style_buy_button(Color(0.10, 0.55, 0.20))
 	vbox.add_child(_buy_button)
 
 	_locked_label = Label.new()
 	_locked_label.text = "LOCKED"
+	_locked_label.add_theme_font_size_override("font_size", fnt_trait)
 	_locked_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_locked_label.modulate = Color.LIGHT_YELLOW
 	_locked_label.visible = false
@@ -100,15 +121,9 @@ func set_unit(p_unit_id: String) -> void:
 		_buy_button.visible = false
 		var empty_sb := StyleBoxFlat.new()
 		empty_sb.bg_color = Color(0.16, 0.24, 0.48, 0.95)
-		empty_sb.border_width_left = 2
-		empty_sb.border_width_right = 2
-		empty_sb.border_width_top = 2
-		empty_sb.border_width_bottom = 2
+		empty_sb.set_border_width_all(2)
 		empty_sb.border_color = Color(0.42, 0.58, 0.95, 0.85)
-		empty_sb.corner_radius_top_left = 4
-		empty_sb.corner_radius_top_right = 4
-		empty_sb.corner_radius_bottom_left = 4
-		empty_sb.corner_radius_bottom_right = 4
+		empty_sb.set_corner_radius_all(4)
 		add_theme_stylebox_override("panel", empty_sb)
 		return
 
@@ -125,19 +140,12 @@ func set_unit(p_unit_id: String) -> void:
 	_icon_glyph.text = _class_glyph(udata.unit_class)
 	_buy_button.disabled = is_locked
 
-	# Color background by cost tier
 	var panel_color := _cost_color(udata.cost)
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = panel_color
-	sb.border_width_bottom = 2
-	sb.border_width_left = 2
-	sb.border_width_right = 2
-	sb.border_width_top = 2
+	sb.set_border_width_all(2)
 	sb.border_color = panel_color.lightened(0.3)
-	sb.corner_radius_top_left = 4
-	sb.corner_radius_top_right = 4
-	sb.corner_radius_bottom_left = 4
-	sb.corner_radius_bottom_right = 4
+	sb.set_corner_radius_all(4)
 	add_theme_stylebox_override("panel", sb)
 
 func _cost_color(cost: int) -> Color:
@@ -157,15 +165,9 @@ func set_affordable(can_afford: bool) -> void:
 func _style_buy_button(base: Color) -> void:
 	var normal := StyleBoxFlat.new()
 	normal.bg_color = base
-	normal.border_width_left = 2
-	normal.border_width_right = 2
-	normal.border_width_top = 2
-	normal.border_width_bottom = 2
+	normal.set_border_width_all(2)
 	normal.border_color = base.lightened(0.25)
-	normal.corner_radius_top_left = 4
-	normal.corner_radius_top_right = 4
-	normal.corner_radius_bottom_left = 4
-	normal.corner_radius_bottom_right = 4
+	normal.set_corner_radius_all(4)
 	_buy_button.add_theme_stylebox_override("normal", normal)
 
 	var hover := normal.duplicate()

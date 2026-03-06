@@ -17,26 +17,24 @@ func _ready() -> void:
 	_refresh()
 
 func _build_ui() -> void:
+	var vp  := get_viewport().get_visible_rect().size
+	var vh  := vp.y
+
 	var panel_style := StyleBoxFlat.new()
 	panel_style.bg_color = Color(0.06, 0.10, 0.20, 0.94)
 	panel_style.border_color = Color(0.20, 0.42, 0.86, 0.95)
-	panel_style.border_width_left = 2
-	panel_style.border_width_right = 2
-	panel_style.border_width_top = 2
-	panel_style.border_width_bottom = 2
-	panel_style.corner_radius_top_left = 6
-	panel_style.corner_radius_top_right = 6
-	panel_style.corner_radius_bottom_left = 6
-	panel_style.corner_radius_bottom_right = 6
+	panel_style.set_border_width_all(2)
+	panel_style.set_corner_radius_all(6)
 	add_theme_stylebox_override("panel", panel_style)
 
+	var sep := int(vh * 0.006)   # 6px @ 1080p
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 6)
+	vbox.add_theme_constant_override("separation", sep)
 	add_child(vbox)
 
 	# Slot row
 	var slot_row := HBoxContainer.new()
-	slot_row.add_theme_constant_override("separation", 6)
+	slot_row.add_theme_constant_override("separation", sep)
 	vbox.add_child(slot_row)
 
 	for i in 5:
@@ -46,42 +44,49 @@ func _build_ui() -> void:
 		slot_row.add_child(slot)
 		_slot_nodes.append(slot)
 
-	# Button row
+	# Button row — sizes relative to viewport height
+	var vw      := vp.x
+	var btn_sep := int(vp.x * 0.004)   # 8px @ 1920
+	var btn_h   := int(vh * 0.043)     # 46px
+	var fnt_btn := int(vh * 0.016)     # 17px
+	var fnt_lbl := int(vh * 0.017)     # 18px gold
+	var fnt_lvl := int(vh * 0.015)     # 16px level
+
 	var btn_row := HBoxContainer.new()
-	btn_row.add_theme_constant_override("separation", 8)
+	btn_row.add_theme_constant_override("separation", btn_sep)
 	vbox.add_child(btn_row)
 
 	_reroll_btn = Button.new()
 	_reroll_btn.text = "Reroll (2g)"
-	_reroll_btn.add_theme_font_size_override("font_size", 14)
-	_reroll_btn.custom_minimum_size = Vector2(120, 34)
+	_reroll_btn.add_theme_font_size_override("font_size", fnt_btn)
+	_reroll_btn.custom_minimum_size = Vector2(int(vw * 0.078), btn_h)
 	_reroll_btn.pressed.connect(_on_reroll)
 	_style_action_button(_reroll_btn, Color(0.10, 0.36, 0.82))
 	btn_row.add_child(_reroll_btn)
 
 	_xp_btn = Button.new()
 	_xp_btn.text = "Buy XP (4g)"
-	_xp_btn.add_theme_font_size_override("font_size", 14)
-	_xp_btn.custom_minimum_size = Vector2(130, 34)
+	_xp_btn.add_theme_font_size_override("font_size", fnt_btn)
+	_xp_btn.custom_minimum_size = Vector2(int(vw * 0.083), btn_h)
 	_xp_btn.pressed.connect(_on_buy_xp)
 	_style_action_button(_xp_btn, Color(0.62, 0.36, 0.02))
 	btn_row.add_child(_xp_btn)
 
 	_lock_btn = Button.new()
 	_lock_btn.text = "Lock"
-	_lock_btn.add_theme_font_size_override("font_size", 14)
-	_lock_btn.custom_minimum_size = Vector2(80, 34)
+	_lock_btn.add_theme_font_size_override("font_size", fnt_btn)
+	_lock_btn.custom_minimum_size = Vector2(int(vw * 0.052), btn_h)
 	_lock_btn.pressed.connect(_on_toggle_lock)
 	_style_action_button(_lock_btn, Color(0.28, 0.28, 0.28))
 	btn_row.add_child(_lock_btn)
 
 	_gold_label = Label.new()
-	_gold_label.add_theme_font_size_override("font_size", 14)
+	_gold_label.add_theme_font_size_override("font_size", fnt_lbl)
 	_gold_label.modulate = Color.GOLD
 	btn_row.add_child(_gold_label)
 
 	_level_label = Label.new()
-	_level_label.add_theme_font_size_override("font_size", 13)
+	_level_label.add_theme_font_size_override("font_size", fnt_lvl)
 	_level_label.modulate = Color(0.80, 0.90, 1.0)
 	btn_row.add_child(_level_label)
 
